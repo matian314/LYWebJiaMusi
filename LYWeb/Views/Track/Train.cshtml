@@ -1,0 +1,144 @@
+﻿@model IEnumerable<LYWeb.Models.TRAIN>
+@using LYWeb.Models
+@{
+    ViewBag.Title = "车辆历史追踪";
+}
+@using PagedList.Mvc;
+@using PagedList;
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<h2 style="text-align:center">列车历史追踪</h2>
+@{ TRAIN train = ViewBag.Train;
+    using (Html.BeginForm(FormMethod.Get))
+    {
+        @Html.AntiForgeryToken()
+        <table class="table table-condensed">
+            <tr>
+                <td>@Html.Label("车号")</td>
+                <td>
+                    <input id="CarNumber" placeholder="请选择" list="units" name="CarNumber" class="form-control" value="@(ViewBag.CarNumber)" />
+                    <datalist id="units">
+                        @foreach (var unit in new TudsEntities().UNIT_NUMBER_DICT.OrderBy(t => t.UNIT_NUMBER))
+                        {
+                            <option>@unit.UNIT_NUMBER</option>
+                        }
+                    </datalist>
+                </td>
+                <td>@Html.Label("开始时间")</td>
+                <td><input id="StartTime" name="StartTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.StartTime)" /></td>
+                <td>@Html.Label("结束时间")</td>
+                <td><input id="EndTime" name="EndTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.EndTime)" /></td>
+                <td>
+                    @Html.ActionLink("导出数据", "TrainHistory", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime }, null)
+                    &nbsp;/&nbsp;       @Html.ActionLink("打印", "TrainHistoryPDF", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime }, new { target = "_blank" })
+                </td>
+                <td><input type="submit" class="btn btn-default" value="查询" /></td>
+            </tr>
+        </table>
+        @Html.ValidationMessage("fail", new { style = "color:red;font-family: 楷体" })
+    }
+    if (train != null)
+    {
+        <table class="table table-condensed">
+            <tr>
+                <td></td>
+                <td style="text-align:right">车号:</td>
+                <td style="text-align:left">@Html.DisplayName(train.NAME)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>配属段</td>
+                <td>@Html.DisplayName(train.DEPOT)</td>
+                <td>车号</td>
+                <td>@Html.DisplayName(train.UNIT_NUMBER1)</td>
+            </tr>
+        </table>
+
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>
+                    序号
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DETECTION_TIME)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.END_POSITION)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SPEED)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DIMENSION_ALARM_LEVEL)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.INSPECTION_ALARM_LEVEL)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SCRAPE_ALARM_LEVEL)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.SITES.NAME)
+                </th>
+                <th>
+                    超限处理
+                </th>
+                <th>
+                    车号人工复核
+                </th>
+                <th></th>
+            </tr>
+            @{/*序号*/
+                int index = 1; }
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @(index++)
+                    </td>
+                    <td>
+                        @Html.ActionLink(item.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"), "Data", "Vehicle", new { id = item.ID }, new { style = "color:black" })
+                    </td>
+                    <td>
+                        @Html.DisplayEndPosition(item.END_POSITION)
+                    </td>
+                    <td>
+                        @(item.SPEED?.ToString())
+                    </td>
+                    <td>
+                        @Html.DisplayAlarmLink(item.DIMENSION_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                    </td>
+                    <td>
+                        @Html.DisplayAlarmLink(item.INSPECTION_ALARM_LEVEL, "Inspection", "Vehicle", new { id = item.ID })
+                    </td>
+                    <td>
+                        @Html.DisplayAlarmLink(item.SCRAPE_ALARM_LEVEL, "Scrape", "Vehicle", new { id = item.ID })
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.SITES.NAME)
+                    </td>
+                    <td>
+                        @Html.DisplayFaultLinkForTrain(item.ID)
+                    </td>
+                    <td>
+                        @Html.ActionLink("车号复核", "UnitRecheck", "Vehicle", new { id = item.ID }, null)
+                    </td>
+                    <td>
+                        @if(item.TRAIN_TYPE == "D")
+                         {
+                            Html.Label("调车", new { style = "color: red" });
+                         }
+                    </td>
+                </tr>
+            }
+        </table>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Train", new { page, CarNumber =  ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime }))
+    }
+}
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#TrackTrain").addClass('active');
+        });
+    </script>
+}

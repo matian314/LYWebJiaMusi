@@ -1,0 +1,35 @@
+﻿
+@{
+    /**/
+
+    ViewBag.Title = "轮对数据分析日报表";
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+<div class="form-horizontal">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <table class="table table-bordered table-striped">
+
+        <tr>
+
+            <td>日期：</td>
+            <td>
+                <input id="date" name="date" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.Today)" />
+            </td>
+            <td>
+                <input type="submit" value="提交" class="btn btn-default" />
+            </td>
+        </tr>
+
+
+
+    </table>
+    <h4 style="text-align:center">@ViewBag.Tips</h4>
+</div>
+}
+

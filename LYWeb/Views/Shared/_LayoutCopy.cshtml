@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="~/../Content/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="~/Scripts/App/ie-emulation-modes-warning.js"></script>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script type="text/javascript" src="~/Scripts/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="@Url.Action("Index", "Monitor")">TUDS - 车辆轮对在线探伤系统</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>@Html.Partial("_LoginPartial")</li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-1 col-md-1 col-lg-1 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li>
+                        数据监控
+                        <ul>
+                            <li id="MonitorIndex"><a href="@Url.Action("Index","Monitor")">过车监控</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li>
+                        数据查询
+                        <ul >
+                            <li id="VehicleIndex"><a href="@Url.Action("Index", "Vehicle")">过车查询</a></li>
+                            <li id="FaultIndex"><a href="@Url.Action("Index","Fault")">超限查询</a></li>
+                            <li id="TrackTrain"><a href="@Url.Action("Train","Track")">历史追踪</a></li>
+                            <li id="TrackWheel"><a href="@Url.Action("Wheel","Track")">车轮追踪</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        数据统计
+                        <ul>
+                            <li id="Statistics"><a href="@Url.Action("Index", "Statistics")">过车统计</a></li>
+                            <li id="Statistics"><a href="@Url.Action("Rechecks", "Statistics")">复核统计</a></li>
+                        </ul>
+                    </li>
+                    @*<li id="Statistics"><a href="@Url.Action("Index", "Statistics")">统计报表</a></li>*@
+                    @*<li id="MonitorFault"><a href="@Url.Action("Fault", "Monitor")">超限监控</a></li>*@
+                </ul>
+</div>
+        </div>
+    </div>
+    <div class="container body-content col-sm-offset-2 col-md-offset-2 col-lg-offset-2">
+        @RenderBody()
+        <footer>
+            <p>&copy; @DateTime.Now.Year - TUDS车辆轮对在线探伤系统</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

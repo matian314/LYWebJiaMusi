@@ -1,0 +1,190 @@
+﻿@model IEnumerable<LYWeb.Models.TRAIN>
+@using LYWeb.Helpers
+@{
+    ViewBag.Title = "过车查询";
+}
+@using PagedList.Mvc;
+@using PagedList;
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<link href="../../Content/default.css" rel="stylesheet" type="text/css">
+<div class="container col-lg-offset-0 ">
+    <div class="row">
+        <div>
+            <ul class="nav nav-pills">
+                <li class="active"><a href="@Url.Action("Index","Monitor")">过车监控</a></li>
+                <li class="dropdown active">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">综合查询<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("Index","Fault")">超限查询</a></li>
+                        <li class="divider"></li>
+                        <li><a href="@Url.Action("Train","Track")">历史追踪</a></li>
+                        <li><a href="@Url.Action("Wheel","Track")">车轮追踪</a></li>
+                    </ul>
+                </li>
+                @if (!string.IsNullOrEmpty(Session["role"]?.ToString()) && Session["role"].ToString() == "管理员")
+                {
+                    <li class="dropdown active">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">综合配置<b class="caret bottom-up"></b></a>
+                        @*<ul class="dropdown-menu bottom-up pull-right">*@
+                        <ul class="dropdown-menu">
+                            <li><a href="@Url.Action("CarType", "Unit")">门限管理</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="active"><a href="@Url.Action("Index", "Unit")">机车管理</a></li>
+                    <li class="active"><a href="@Url.Action("UserEdit", "User")">用户管理</a></li>
+                }
+                <li class="active"><a href="@Url.Action("PassTrain", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, AlarmLevel = ViewBag.AlarmLevel, DataSource = ViewBag.DataSource, FaultItem = ViewBag.FaultItem })">导出数据</a></li>
+                <li class="active"><a href="@Url.Action("PassTrainPDF", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, AlarmLevel = ViewBag.AlarmLevel, DataSource = ViewBag.DataSource, FaultItem = ViewBag.FaultItem })" target="_blank">打印数据</a></li>
+                <li class="active"><a href="@Url.Action("ChangePassword", "User")">修改密码</a></li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+<h2 style="text-align:center">过车查询</h2>
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <table class="table">
+        <tr>
+            <td>@Html.Label("车号")</td>
+            <td>
+                <input id="CarNumber" placeholder="请选择" list="units" name="CarNumber" class="form-control" value="@ViewBag.CarNumber" />
+                <datalist id="units">
+                    @foreach (var unit in new TudsEntities().UNIT_NUMBER_DICT)
+                    {
+                        <option>@unit.UNIT_NUMBER</option>
+                    }
+                </datalist>
+            </td>
+            <td>@Html.Label("起始时间")</td>
+            <td><input id="StartTime" name="StartTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.StartTime)" /></td>
+            <td>@Html.Label("结束时间")</td>
+            <td><input id="StartTime" name="EndTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.EndTime)" /></td>
+            <td rowspan="2"><input type="submit" class="btn btn-default" value="查询" /></td>
+        </tr>
+        <tr>
+            <td>@Html.Label("报警级别")</td>
+            <td>@Html.DropDownList("AlarmLevel", SelectListFactory.CreateAlarmLevelSelectList((string)ViewBag.AlarmLevel), new { @class = "form-control" })</td>
+            <td>@Html.Label("报警类别")</td>
+            <td>@Html.DropDownList("DataSource", SelectListFactory.CreateDataSourceSelectList((string)ViewBag.DataSource), new { @class = "form-control" })</td>
+            <td>@Html.Label("报警项目")</td>
+            <td>@Html.DropDownList("FaultItem", SelectListFactory.CreateFaultItemSelectList((string)ViewBag.FaultItem), new { @class = "form-control" })</td>
+
+        </tr>
+        <tr>
+            @Html.ValidationMessage("fail", new { style = "color:red" })
+           
+        </tr>
+    </table>
+
+}
+@if (Model != null && Model.Count() != 0)
+{
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th rowspan="2">
+                检测时间
+            </th>
+            <th rowspan="2">
+                车号
+            </th>
+            <th rowspan="2">
+                轴数
+            </th>
+            <th rowspan="2">
+                探伤
+            </th>
+            <th rowspan="2">
+                擦伤
+            </th>
+            <th colspan="7">
+                外形几何尺寸
+            </th>
+            <th rowspan="2">
+                配属段
+            </th>
+            <th rowspan="2">
+                超限
+            </th>
+            <th rowspan="2">
+                车号人工复核
+            </th>
+        </tr>
+        <tr>
+            <th>车轮直径</th>
+            <th>踏面磨耗</th>
+            <th>轮辋厚度</th>
+            <th>轮缘厚度</th>
+            <th>轮缘高度</th>
+            <th>QR值</th>
+            <th>内侧距</th>
+        </tr>
+
+
+
+        @{/*序号*/
+            int index = 1; }
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.ActionLink(item.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"), "Data", "Vehicle", new { id = item.ID }, new { style = "color:black" })
+                </td>
+                <td>
+                    @Html.ActionLink(item.NAME, "Train", "Track", new { CarNumber = item.NAME }, new { style = "color:black" })
+                </td>
+                <td>
+                    @item.AXLE_COUNT
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.INSPECTION_ALARM_LEVEL, "Inspection", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.SCRAPE_ALARM_LEVEL, "Scrape", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.DIAMETER_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.TREAD_WEAR_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.RIM_THICKNESS_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.FLANGE_THICKNESS_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.FLANGE_HEIGHT_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.QR_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @Html.DisplayAlarmLink(item.WHEELSET_DISTANCE_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+                </td>
+                <td>
+                    @item.DEPOT
+                </td>
+                <td>
+                    @Html.DisplayFaultLinkForTrain(item.ID)
+                </td>
+                <td>
+                    @Html.ActionLink("车号复核", "UnitRecheck", "Vehicle", new { id = item.ID }, null)
+                </td>
+            </tr>
+        }
+
+    </table>
+    @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page, CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, AlarmLevel = ViewBag.AlarmLevel, DataSource = ViewBag.DataSource, FaultItem = ViewBag.FaultItem }))
+}
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+        });
+    </script>
+}

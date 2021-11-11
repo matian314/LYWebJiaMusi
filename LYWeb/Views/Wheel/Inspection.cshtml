@@ -1,0 +1,671 @@
+﻿@model LYWeb.Models.WHEEL
+@using LYWeb.Helpers
+@using Newtonsoft
+@using Newtonsoft.Json 
+@{
+    Layout = null;
+    //localhost:23110/Wheel/Inspection/01b0d946-7602-441b-bc87-e2689b14238b
+    ViewBag.Title = Model.NAME + " - 车轮探伤信息";
+    List<PROBE_DATA> probes = ViewBag.Probes;
+    var arrs = JsonConvert.DeserializeObject<List<AxleWave>>(probes.FirstOrDefault()?.DETAIL_DATA);
+}
+<script type="text/javascript" src="~/JS/echart/dist/ecStat.min.js"></script>
+<script type="text/javascript" src="~/JS/echart/dist/extension/dataTool.min.js"></script>
+<script type="text/javascript" src="~/JS/echart/dist/extension/bmap.min.js"></script>
+<script type="text/javascript" src="~/JS/echart/dist/echarts.js"></script>
+<script type="text/javascript" src="~/JS/echart/dist/echarts-liquidfill.js"></script>
+<style>
+    #tu .tr {
+        height: 5%;
+    }
+
+    #tu .td1 {
+        text-align: center;
+        color: #fff;
+        background-color: #17dede;
+        width: 30%;
+        font-size: 14px;
+    }
+
+    #tu .td2 {
+        text-align: center;
+        color: #fff;
+        background-color: #17dede;
+        width: 69%;
+        font-size: 14px;
+    }
+
+    #tu .td3 {
+        text-align: center;
+        color: #fff;
+        background-color: #17dede;
+        width: 33%;
+        font-size: 14px;
+    }
+</style>
+
+<body style="width:100%; height:100%; margin:0;padding:0;position:fixed; background: #000;">
+    <div style="width: 100%; height: 10%;color: red; text-align: center;">Railway carriage wheelset online intergrated system</div>
+        <div id="tu" style="width:50%;height: 35%; float:left;">
+            <div style="width:60%;height: 100%;float:left;">
+                <div style="height: 10%;width:100%; color:#fff;text-align: center;">@Model.NAME-轮位图</div>
+                <div id="echart1" style="width:100%; float:left;"></div>
+            </div>
+            <div id="echart2" style="width:38%;height: 100%; float:right; background-color: #208556;">
+                <div style="height: 5%;color:#fff;">@Model.VEHICLE.NAME</div>
+                <div>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td class="td1">检测时间</td>
+                            <td style="background-color: #fff;">
+                                <div id="time" style="font-size: 14px;text-align: center;">@Model.VEHICLE.TRAIN.DETECTION_TIME.ToString("F")</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="td1">车辆号</td>
+                            <td class="td2">@Model.VEHICLE.TRAIN.NAME</td>
+                        </tr>
+                        <tr>
+                            <td class="td1">轮径</td>
+                            <td class="td2">@Model.DIAMETER</td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="height: 5%;color:#fff;">车轮缺陷</div>
+                <div>
+                    <table style="width: 100%;">
+                        <tr>
+                            <td class="td1">自动探伤</td>
+                            <td class="td2"></td>
+                        </tr>
+                        <tr>
+                            <td class="td1">实际缺陷</td>
+                            <td class="td2"></td>
+                        </tr>
+                    </table>
+                </div>
+                <div style="height: 5%;color:#fff;">过滤选项</div>
+                <div">
+                    <table style="width: 100%;">
+                        <tr>
+                            <td class="td3">探头类型</td>
+                            <td class="td3">报警级别</td>
+                            <td class="td3">缺陷报警</td>
+                        </tr>
+                        <tr>
+                            <td class="td3"><input type="checkbox" />直探头</td>
+                            <td class="td3"><input type="checkbox" />一级</td>
+                            <td class="td3"><input type="checkbox" />一级</td>
+                        </tr>
+                        <tr>
+                            <td class="td3"></td>
+                            <td class="td3"><input type="checkbox" />二级</td>
+                            <td class="td3"><input type="checkbox" />二级</td>
+                        </tr>
+                        <tr>
+                            <td class="td3"><input type="checkbox" />大角度</td>
+                            <td class="td3"><input type="checkbox" />三级</td>
+                            <td class="td3"><input type="checkbox" />三级</td>
+                        </tr>
+                        <tr>
+                            <td class="td3"><input type="checkbox" />当前探头</td>
+                            <td class="td3"></td>
+                            <td class="td3"></td>
+                        </tr>
+                    </table>
+                    <div>
+                        <button style="color:#000;font-size: 14px;">打印车辆报告</button>&nbsp;&nbsp;&nbsp;<input type="checkbox" style="color:#000;font-size: 14px;" />探头明细
+                        <br /><br />
+                        <button style="color:#000;font-size: 14px;">打印车辆报告</button>
+                    </div>
+            </div>
+        </div>
+        </div>
+        <div id="echart3" style="width:50%; float:right;">
+            <div id="echart4" style="width: 100%; height: 90%;"></div>
+        </div>
+        <script>
+            int();
+            function int() {
+                var divOne1 = document.getElementById('echart1');
+                var divOne2 = document.getElementById('echart2');
+                var divOne3 = document.getElementById('echart3');
+                divOne1.style.height = divOne1.offsetWidth + 'px';
+                divOne2.style.height = divOne1.offsetWidth + 'px';
+                divOne3.style.height = divOne1.offsetWidth + 'px';
+                pie(echarts.init(document.getElementById('echart1')));
+                bar(echarts.init(document.getElementById('echart3')));
+                setInterval("getCurDate()", 100);
+            }
+            function pie(myChart) {
+                var barBgColor = "#eeeeee";
+                var barFgColor = "#fcd202";
+                var val = 80;
+                option = {
+                    backgroundColor: '#000',
+                    //backgroundColor: barBgColor,
+                    //center: ['50%', '40%'],
+
+                    series: [{
+                        name: 'bg1',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['95%', '100%'],
+                        borderColor: null,
+                        borderWidth: 0,
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            silent: true,
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgb(255,255,255)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgb(255,255,255)' },
+                                            //{offset: 0.8, color: 'rgba(243,176,6,0.97)'},
+                                            { offset: 1, color: 'rgba(230,230,230,1)' }
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    },
+                    {
+                        name: 'bg2',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['85%', '95%'],
+                        itemStyle: {
+                            borderColor: null,
+                            borderWidth: 0
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                borderColor: null,
+                                borderWidth: 0,
+                                normal: {
+                                    //color:'	rgb(192,192,192)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgb(192,192,192)' },
+                                            //{offset: 0.8, color: 'rgba(243,176,6,0.97)'},
+                                            { offset: 1, color: 'rgba(170,170,170,.8)' }
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    },
+                    {
+                        name: 'bg3',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: false,
+                        radius: ['83%', '85%'],
+                        itemStyle: {
+                            borderColor: null,
+                            borderWidth: 0
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                borderColor: null,
+                                borderWidth: 0,
+                                normal: {
+                                    //color:'rgba(243,176,6,0.97)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            { offset: 0, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 0.5, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 1, color: 'rgba(0, 0, 0)' }
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    },
+                    {
+                        name: 'bg4',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['80%', '83%'],
+                        itemStyle: {
+                            borderColor: null,
+                            borderWidth: 0
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                borderColor: null,
+                                borderWidth: 0,
+                                normal: {
+                                    //color:'rgba(243,176,6,0.97)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            //{offset: 0, color: 'rgba(255,255,255,0.9)'},
+                                            { offset: 0, color: '#efdec2' },
+                                            { offset: 0.2, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 0.7, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 1, color: 'rgba(30, 30, 30)' }
+                                            /*{offset: 0, color: 'rgba(243,176,6,0.97)'},
+                                            {offset: 0.5, color: 'rgba(243,176,6,0.97)'},
+                                            {offset: 1, color: 'rgba(0, 0, 0)'}*/
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    },
+                    {
+                        name: 'bg5',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['70%', '80%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgba(243,176,6,0.97)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            { offset: 0.8, color: 'rgba(243,176,6,0.9)' },
+                                            { offset: 1, color: '#f5eeea' }
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    },
+                    {
+                        name: 'bg6',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['69%', '70%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgba(142,104,9,0.97)'
+                                    //color:'rgba(236,171,6,0.9)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            { offset: 0.1, color: '#b16a0b' },
+                                            { offset: 1, color: 'rgba(236,171,6,0.9)' }
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    }, {
+                        name: 'bg7',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: true,
+                        silent: true,
+                        radius: ['39%', '69%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgba(243,176,6,0.97)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            //{offset: 0, color: 'rgba(255,255,255,0.9)'},
+                                            { offset: 0, color: '#d4b455' },
+                                            { offset: 0.5, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 1, color: 'rgba(243,176,6,0.97)' },
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }]
+                    },
+                    {
+                        name: 'bg8',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['36%', '39%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgba(236,171,6,0.97)'
+                                    //上一层
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            //{offset: 0, color: 'rgba(255,255,255,0.9)'},
+                                            { offset: 0, color: 'rgba(50, 50, 50)' },
+                                            { offset: 0.7, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 0.8, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 1, color: '#efdec2' }
+
+                                        ],
+                                        global: false // 缺省为 false
+                                    },
+                                    //shadowBlur: 15.5,
+                                    //shadowOffsetX: -2.5
+                                }
+                            }
+                        }],
+                    }, {
+                        name: 'bg9',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['34%', '36%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    //color:'rgba(156,114,8,0.97)'
+                                    color: {
+                                        type: 'radial',
+                                        x: 0.1,
+                                        y: 0.5,
+                                        r: 1,
+                                        colorStops: [
+                                            //{offset: 0, color: 'rgba(255,255,255,0.9)'},
+                                            { offset: 0, color: 'rgba(50, 50, 50)' },
+                                            { offset: 0.8, color: 'rgba(243,176,6,0.97)' },
+                                            { offset: 1, color: 'rgba(243,176,6,0.97)' },
+
+                                        ],
+                                        global: false // 缺省为 false
+                                    }
+                                }
+                            }
+                        }],
+                    }, {
+                        name: 'bg10',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['24%', '34%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgb(255,255,255)'
+                                }
+                            }
+                        }],
+                    }, {
+                        name: 'bg11',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['2.5%', '24%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgb(192,192,192)'
+                                }
+                            }
+                        }],
+                    }, {
+                        name: 'bg12',
+                        type: 'pie',
+                        hoverAnimation: false,
+                        animation: false,
+                        silent: true,
+                        radius: ['0%', '2.5%'],
+                        itemStyle: {
+                            borderColor: null
+                        },
+                        left: "0%",
+                        data: [{
+                            value: 100,
+                            //radius: [0, '30%'],
+                            //name: 'v1',
+                            itemStyle: {
+                                normal: {
+                                    color: 'rgb(255,255,255)'
+                                }
+                            }
+                        }],
+                    },]
+                };
+                myChart.setOption(option);
+            }
+
+            function bar(myChart) {
+                arr = [];
+                arr1 = @(JsonConvert.SerializeObject(arrs[0].Wave1.ToArray()));
+                arr2 = @(JsonConvert.SerializeObject(arrs[0].Wave2.ToArray()));
+                arr3 = @(JsonConvert.SerializeObject(arrs[0].Wave3.ToArray()));
+                //for (var i = 1; i <= 250; i++) {
+                //    arr.push(i);
+                //    arr1.push(Math.random() * 10 + Math.random());
+                //    arr2.push(Math.random() * 30 + Math.random());
+                //    arr3.push(Math.random() * 50 + Math.random());
+                //}
+                option = {
+                    title: {
+                        text: '检测数据曲线 @(probes.FirstOrDefault()?.LINE)',
+                        //subtext: '数据来自西安兰特水电测控技术有限公司',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            animation: false
+                        }
+                    },
+                    /*toolbox: {
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            restore: {},
+                            saveAsImage: {}
+                        }
+                    },*/
+                    axisPointer: {
+                        link: { xAxisIndex: 'all' }
+                    },
+                    /*dataZoom: [
+                        {
+                            show: true,
+                            realtime: true,
+                            start: 30,
+                            end: 70,
+                            //xAxisIndex: [0, 1]
+                        }
+                    ],*/
+                    grid: [{
+                        left: 50,
+                        right: 50,
+                        height: '80%',
+                        top: '10%',
+                        show: true
+                    }],
+                    xAxis: [
+                        {
+                            type: 'category',
+                            boundaryGap: false,
+                            axisLine: { onZero: true },
+                            data: arr,
+                            //data: [-17, 1, 2, 3, 4, 54, 33, 1, 2, 3, 4, 54, 83, 1, 2, 3, 4, 54, 133, 1, 2, 3, 4, 54, 183, 1, 2, 3, 4, 54, 233],
+                            axisLabel: {
+                                margin: 10,
+                                interval: function (index, value) {
+                                    arr = [-17, 33, 83, 133, 183, 233];
+                                    if (arr.indexOf(value * 1) > -1) {
+                                        return true;
+                                    }
+                                },
+
+                            },
+                        }
+                    ],
+                    yAxis: [
+                        {
+                            type: 'value',
+                            max: 100
+                        }
+                    ],
+                    series: [
+                        {
+                            //name: '流量',
+                            type: 'line',
+                            symbolSize: 8,
+                            hoverAnimation: false,
+                            symbol: "none",
+                            data: arr1,
+                            itemStyle: {
+                                color: 'red'
+                            },
+                            lineStyle: {
+                                width: 1
+                            }
+                        },
+                        {
+                            //name: '流量',
+                            type: 'line',
+                            symbolSize: 8,
+                            hoverAnimation: false,
+                            symbol: "none",
+                            data: arr2,
+                            itemStyle: {
+                                color: 'yellow'
+                            },
+                            lineStyle: {
+                                width: 1
+                            }
+
+                        },
+                        {
+                            //name: '流量',
+                            type: 'line',
+                            symbolSize: 8,
+                            hoverAnimation: false,
+                            symbol: "none",
+                            data: arr3,
+                            itemStyle: {
+                                color: 'blue'
+                            },
+                            lineStyle: {
+                                width: 1
+                            }
+                        },
+                    ]
+                };
+                myChart.setOption(option);
+            }
+
+            function add_zero(temp) {
+                if (temp < 10) return "0" + temp;
+                else return temp;
+            }
+        </script>
+    </body>

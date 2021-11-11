@@ -1,0 +1,38 @@
+﻿@model IEnumerable<LYWeb.Models.FAULT_IMAGE>
+@{
+    FAULT fault = ViewBag.Fault;
+    ViewBag.Title = "车轮" + fault.WHEEL.NAME + fault.ITEM + "图片";
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<table class="table">
+    <tr>
+        <td>探测时间</td>
+        <td>@fault.WHEEL.VEHICLE.TRAIN.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss")</td>
+        <td>配属段</td>
+        <td>@fault.WHEEL.VEHICLE.TRAIN.DEPOT</td>
+        <td>探测点</td>
+        <td>@fault.WHEEL.VEHICLE.TRAIN.SITES.NAME</td>
+    </tr>
+    <tr>
+        <td>报警车轮</td>
+        <td>@fault.WHEEL.NAME</td>
+        <td>报警位置</td>
+        <td>@fault.ITEM</td>
+        <td>超限值</td>
+        <td>@(fault.VALUE.ToString() + " ") mm</td>
+    </tr>
+</table>
+@foreach (FAULT_IMAGE img in Model)
+{
+    <img src="@img.PATH" style="width:40%;height:auto" />
+}
+@Html.ActionLink("返回", "Train", "Fault", new { id = fault.WHEEL.VEHICLE.TRAIN_ID }, null)
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#FaultIndex").addClass('active');
+        });
+    </script>
+}

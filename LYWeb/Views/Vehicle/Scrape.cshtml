@@ -1,0 +1,95 @@
+﻿@model IEnumerable<LYWeb.Models.VEHICLE>
+@using LYWeb.Models;
+@{
+    TRAIN train = ViewBag.Train;
+    ViewBag.Title = train?.NAME + " - 列车擦伤数据";
+
+}
+
+<h2 style="text-align:center">@train.NAME - 擦伤(轮缘缺陷)数据</h2>
+<h5 style="text-align:right">单位:mm</h5>
+<script type="text/javascript">
+    function printData() {
+        var printData = document.getElementById("forPrint").innerHTML; // 只打印 forPrint 这个div中的内容。
+        var syfPrint = document.frames[0];
+        syfPrint.document.body.innerHTML = printData;
+        syfPrint.document.execCommand("Print");
+    }
+</script>
+<iframe src="" width="0" height="0" frameborder="0"></iframe>
+<table class="table">
+    <tr>
+        <td>@Html.ActionLink("超限数据", "Train", "Fault", new { id = train?.ID }, null)</td>
+        <td>@Html.ActionLink("测量数据", "Data", new { id = train?.ID }, null)</td>
+        <td>@Html.ActionLink("几何尺寸", "Dimension", new { id = train?.ID }, null)</td>
+        <td>@Html.ActionLink("探伤", "Inspection", new { id = train?.ID }, null)</td>
+    </tr>
+    <tr>
+        @*给王力男*@
+        <td>@Html.ActionLink("准确性分析", "DimensionAnalyse", "Excel", new { id = train?.ID }, null)</td>
+        <td>@Html.ActionLink("导出数据", "Scrape", "Excel", new { id = train?.ID }, null)</td>
+        <td>@Html.ActionLink("打印", "ScrapePDF", "Excel", new { id = train?.ID }, new { target = "_blank" })@*<input type="button" onclick="printData()" value="打印" />*@</td>
+    </tr>
+</table>
+<div id="forPrint">
+    <table class="table">
+        <tr>
+            <td>车号: @(train?.NAME)</td>
+            <td>探测站:@(train?.SITES.NAME)</td>
+            <td>配属段: @(train?.DEPOT)</td>
+            <td>检测时间:@(train?.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+        </tr>
+    </table>
+
+    @foreach (var vehicle in Model)
+    {
+<table class="table table-bordered table-striped">
+    <tr>
+        <th align="center">车号</th>
+        <th align="center">车轮位置</th>
+        <th align="center">踏面(轮缘)缺陷深度</th>
+        <th align="center">踏面(轮缘)缺陷长度</th>
+        <th align="center">径跳</th>
+        <th align="center">车轮位置</th>
+        <th align="center">踏面(轮缘)缺陷深度</th>
+        <th align="center">踏面(轮缘)缺陷长度</th>
+        <th align="center">径跳</th>
+    </tr>
+    @for (int i = 0; i < vehicle.WHEEL.Count / 2; i++)
+    {
+        var wheels = vehicle.WHEEL;
+        var leftWheels = wheels.Where(w => w.POSITION.Contains("左")).OrderBy(w => w.POSITION).ToList();
+        var rightWheels = wheels.Where(w => w.POSITION.Contains("右")).OrderBy(w => w.POSITION).ToList();
+        WHEEL wheel1 = leftWheels[i];
+        WHEEL wheel2 = rightWheels[i];
+        //var wheels = vehicle.WHEEL.OrderBy(w => w.POSITION).ToList();
+        //WHEEL wheel1 = wheels[2 * i];
+        //WHEEL wheel2 = wheels[2 * i + 1];
+        <tr>
+            @if (i % (vehicle.WHEEL.Count / 2) == 0)
+            {
+
+                <td rowspan="@(vehicle.WHEEL.Count / 2)" align="center">@vehicle.NAME</td>
+            }
+            <td align="center">@wheel1.POSITION @Html.ActionLink("（图片）", "Photos", "Wheel", new { id = wheel1.ID }, new { target = "_blank" })</td>
+            <td align="center">@Html.DisplayValueLink(wheel1, "MAX_BRUISE_DEPTH", "Scrape", "Wheel", new { id = wheel1.ID })</td>
+            <td align="center">@Html.DisplayValueLink(wheel1, "MAX_BRUISE_LENGTH", "Scrape", "Wheel", new { id = wheel1.ID })</td>
+            <td align="center">@Html.DisplayValueLink(wheel1, "ROUND", "Scrape", "Vehicle", new { id = wheel1.ID })</td>
+            <td align="center">@wheel2.POSITION @Html.ActionLink("（图片）", "Photos", "Wheel", new { id = wheel2.ID }, new { target = "_blank" })</td>
+            <td align="center">@Html.DisplayValueLink(wheel2, "MAX_BRUISE_DEPTH", "Scrape", "Wheel", new { id = wheel2.ID })</td>
+            <td align="center">@Html.DisplayValueLink(wheel2, "MAX_BRUISE_LENGTH", "Scrape", "Wheel", new { id = wheel2.ID })</td>
+            <td align="center">@Html.DisplayValueLink(wheel2, "ROUND", "Scrape", "Wheel", new { id = wheel2.ID })</td>
+        </tr>
+    }
+</table>
+            }
+
+    </div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+        });
+    </script>
+}

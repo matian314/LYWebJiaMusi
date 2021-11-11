@@ -1,0 +1,140 @@
+﻿@model LYWeb.Models.TRAIN
+@using System.IO
+@{
+    ViewBag.Title = "车号复核";
+    string baseDirectory = $"~/AEI/{Model?.DETECTION_TIME.ToString("yyyyMMddHHmmss")}";
+    string id = Model.ID;
+    string[] carNoInfo = Model.NAME.Split('-');
+    string carType = "";
+    string carNumber = "";
+    if(carNoInfo.Count()==2)
+    {
+        carType = carNoInfo[0].Trim();
+        carNumber = carNoInfo[1].Trim();
+    }
+    string[] url = HttpContext.Current.Request.Path.Split('/');
+    string suffix = "";
+    if (url[1] != "Vehicle")
+    {
+        suffix = "/" + url[1];
+    }
+    Dictionary<string, string> imageKVPairs = (Dictionary<string, string>)ViewBag.Image;
+
+
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <table class="table table-condensed">
+        <tr>
+            <td>探测时间</td>
+            <td>@(Model?.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"))</td>
+            <td>端位</td>
+            <td>
+                <input name="EndPosition" id="EndPosition" value="@Model.END_POSITION" list="endpositionlist" />
+                <datalist id="endpositionlist">
+                    <option>1</option>
+                    <option>2</option>
+                </datalist>
+            </td>
+        </tr>
+    </table>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th style="text-align:center">车型</th>
+            <th style="text-align:center">车号</th>
+            <th style="text-align:center">过车图片</th>
+            <th style="text-align:center">过车视频</th>
+        </tr>
+        <tr>
+            <td align="center">
+                如需修改，请输入车型，如 DF11G
+                <br />
+                <input value="@carType" name="CARTYPE" id="CARTYPE" list="carTypeList" />
+                @*<input value="@(Model?.NAME)" name="NAME" id="NAME" list="carnumber" />*@
+            </td>
+            <td align="center">
+                如需修改，请输入四位车号，如 0120
+                <br />
+                <input value="@carNumber" name="CARNUMBER" id="CARNUMBER" />
+            </td>
+            <td>
+                @if (imageKVPairs != null && imageKVPairs.Count() > 0)
+                {
+                    foreach (var kv in imageKVPairs)
+                    {
+                        <img style="width:250px;height:auto" src="data:image/jpeg;base64,@kv.Value" />
+                    }
+                }
+            </td>
+            <td>
+                @if (!string.IsNullOrEmpty(ViewBag.VideoName))
+                {
+                    <video width="320" height="240" controls>
+                        <source src="@ViewBag.VideoName" type="video/mp4">
+                        浏览器版本过低，无法查看视频。建议使用Chrome浏览器
+                    </video>
+                }
+
+            </td>
+            
+
+            @*@{
+                DirectoryInfo unitDirectory = new DirectoryInfo(Path.Combine(Server.MapPath(baseDirectory), Model.NAME));
+                if (unitDirectory.Exists && unitDirectory.GetFiles().Count() != 0)
+                {
+                    <td>
+                        @foreach (var image in unitDirectory.GetFiles())
+                        {
+                            <img style="width:40%;height:auto" src="@($"{suffix}/AEI/{Model?.DETECTION_TIME.ToString("yyyyMMddHHmmss")}/{Model?.NAME}/{image.Name}")" />
+                        }
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        暂无数据
+                    </td>
+                }
+            }*@
+        </tr>
+    </table>
+    @*<table class="table table-bordered table-striped">
+        <tr><th>车辆类型</th><th style="text-align:center">车号</th><th style="text-align:center">图片</th></tr>
+        @foreach (var vehicle in new TudsEntities().VEHICLE.Where(v => v.TRAIN_ID == id).OrderBy(v => v.PASS_ORDER))
+        {
+            <tr>
+                <td><input name="@vehicle.COACH_TYPE" id="@vehicle.COACH_TYPE" value="@vehicle.COACH_TYPE"/></td>
+                <td><input name="@vehicle.ID" id="@vehicle.ID" value="@vehicle.NAME.Split(' ').Last()" list="vehiclenumberlist" /></td>
+                <td>
+                    @if (imageKVPairs != null && imageKVPairs.Count() > 0)
+                    {
+                        foreach (var kv in imageKVPairs)
+                        {
+                            <img style="width:250px;height:auto" src="data:image/jpeg;base64,@kv.Value" />
+                        }
+                    }
+
+                
+            </tr>
+        }
+    </table>*@
+    <datalist id="carTypeList">
+        @foreach (var name in new TudsEntities().CAR_TYPE.Where(t=>t.TYPE !="DEFAULT").ToList())
+        {
+            <option>@name.TYPE</option>
+        }
+    </datalist>
+
+    <button type="submit" class="btn btn-default" value="提交" name="submit">提交</button>
+}
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+        });
+    </script>
+}

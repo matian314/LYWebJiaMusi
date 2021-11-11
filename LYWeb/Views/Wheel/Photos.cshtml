@@ -1,0 +1,62 @@
+﻿@model Dictionary<string, string>
+@using System.IO
+@{
+    ViewBag.Title = $"{ViewBag.WheelName} 图片";
+    //string baseDirectory = $"~/AEI/{Model?.DETECTION_TIME.ToString("yyyyMMddHHmmss")}";
+    //string id = Model.ID;
+    //string[] url = HttpContext.Current.Request.Path.Split('/');
+    //string suffix = "";
+    //if (url[1] != "Vehicle")
+    //{
+    //    suffix = "/" + url[1];
+    //}
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+
+@if (Model != null && Model.Count() > 0)
+{
+<table class="table table-bordered table-striped">
+    <tr><th style="text-align:center">名称</th><th style="text-align:center">图片</th></tr>
+    @foreach (KeyValuePair<string, string> kv in Model)
+    {
+        if (kv.Key.Contains("踏面"))
+        {
+            <tr><td>@kv.Key</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@kv.Value" /></td></tr>
+        }
+
+    }
+    @*<tr>
+            <td>激光1</td>
+
+            <td>
+                @if (Model.ContainsKey("激光1"))
+                {
+                    <img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["激光1"]" />
+                }
+            </td>
+        </tr>
+        <tr><td>激光2</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["激光2"]" /></td></tr>
+        <tr><td>踏面1</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面1"]" /></td></tr>
+        <tr><td>踏面2</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面2"]" /></td></tr>
+        <tr><td>踏面3</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面3"]" /></td></tr>
+        <tr><td>踏面4</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面4"]" /></td></tr>
+        <tr><td>踏面5</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面5"]" /></td></tr>
+        <tr><td>踏面6</td><td><img style="width:80%;height:auto" src="data:image/jpeg;base64,@Model["踏面6"]" /></td></tr>*@
+</table>
+}
+else
+{
+    <h4 style="text-align:center">@ViewBag.Tips</h4>
+}
+
+
+
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+        });
+    </script>
+}

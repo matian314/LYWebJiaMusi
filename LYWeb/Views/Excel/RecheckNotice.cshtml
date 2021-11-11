@@ -1,0 +1,22 @@
+﻿@{
+    Layout = null;
+    string path = ViewBag.pdfPath;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+    
+</head>
+<body>
+    <script src="~/Scripts/pdfobject.min.js"></script>
+    <div id="example1" style="height : 1000px"></div>
+
+    <script>
+        PDFObject.embed("@ViewBag.pdfPath", "#example1");
+    </script>
+</body>
+</html>

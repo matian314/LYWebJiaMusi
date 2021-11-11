@@ -1,0 +1,57 @@
+﻿@model IEnumerable<LYWeb.Models.WHEEL>
+<table class="table" style="margin-left: 70px">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.POSITION)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.INSPECTION_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.SCRAPE_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DIMENSION_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DIAMETER_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FLANGE_THICKNESS_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FLANGE_HEIGHT_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RIM_THICKNESS_ALARMLEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.QR_ALARMLEVEL)
+        </th>
+        <th></th>
+    </tr>
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @if (!string.IsNullOrWhiteSpace(item.POSITION))
+            {
+                @Html.ActionLink(item.POSITION.ToString(), "Details", "Wheel", new { id = item.ID }, null)
+            }
+
+        </td>
+        <td>@Html.DisplayAlarmLevel(item.ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.INSPECTION_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.SCRAPE_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.DIMENSION_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.DIAMETER_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.FLANGE_THICKNESS_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.FLANGE_HEIGHT_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.RIM_THICKNESS_ALARMLEVEL)</td>
+        <td>@Html.DisplayAlarmLevel(item.QR_ALARMLEVEL)</td>     
+    </tr>
+}
+
+</table>

@@ -1,0 +1,230 @@
+﻿@model IEnumerable<LYWeb.Models.VEHICLE>
+@{
+    TRAIN train = (TRAIN)ViewBag.Train;
+    TRAIN lastTrain = (TRAIN)ViewBag.LastTrain;
+    TimeSpan ts = new TimeSpan();
+    if(train.DETECTION_TIME != null && lastTrain != null && lastTrain.DETECTION_TIME !=null)
+    {
+        ts = train.DETECTION_TIME - lastTrain.DETECTION_TIME;
+    }
+    Dictionary<string, string> imageKVPairs = (Dictionary<string, string>)ViewBag.Image;
+
+    ViewBag.Title = train.NAME + " - 列车测量数据";
+}
+<div class="container col-lg-offset-0 ">
+    <div class="row ">
+        <div>
+            <ul class="nav nav-pills">
+                <li class="active"><a href="@Url.Action("Train", "Fault", new { id = train.ID })">超限复核</a></li>
+                <li class="active"><a href="@Url.Action("Train", "Track",new { CarNumber = train.NAME })">过车历史</a></li>
+                <li class="active"><a href="@Url.Action("Index", "Vehicle")">过车查询</a></li>
+                <li class="dropdown active">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">数据查询<b class="caret bottom-up"></b></a>
+                    @*<ul class="dropdown-menu bottom-up pull-right">*@
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("Dimension",new { id = train.ID })">几何尺寸</a></li>
+                        <li><a href="@Url.Action("Inspection",new { id = train.ID })">探伤</a></li>
+                        <li><a href="@Url.Action("Scrape",new { id = train.ID })">擦伤</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown active">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">综合查询<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("Train","Track")">历史追踪</a></li>
+                        <li><a href="@Url.Action("Wheel","Track")">车轮追踪</a></li>
+                    </ul>
+                </li>
+
+
+                <li class="active"><a href="@Url.Action("VehicleData","Excel", new { id = train.ID })">导出数据</a></li>
+                <li class="active"><a href="@Url.Action("DimensionAnalyse", "Excel",new { id = train.ID })">外形尺寸分析报表</a></li>
+                <li class="active"><a href="@Url.Action("FaultReport", "LocoReport",new { id = train.ID })">故障报告</a></li>
+                <li class="active"><a href="@Url.Action("SysStatus", "LocoReport",new { id = train.ID })">系统报告</a></li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<h5 style="text-align:right">单位:mm</h5>
+@*<table class="table">
+    <tr>
+        <td>@Html.ActionLink("超限数据", "Train", "Fault", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("几何尺寸", "Dimension", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("探伤", "Inspection", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("擦伤", "Scrape", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("检测报告", "DetectionReport", "LocoReport", new { id = train.ID }, null)</td>
+    </tr>
+    <tr>
+
+        <td>@Html.ActionLink("导出数据", "VehicleData", "Excel", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("几何尺寸准确性分析", "DimensionAnalyse", "Excel", new { id = train.ID }, null)</td>
+
+        <td>@Html.ActionLink("打印", "VehicleDataPDF", "Excel", new { id = train.ID }, new { target = "_blank" })</td>
+        <td>@Html.ActionLink("故障报告", "FaultReport", "LocoReport", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("系统报告", "SysStatus", "LocoReport", new { id = train.ID }, null)</td>
+    </tr>
+</table>*@
+<div class="container">
+    <div class="row">
+        <div class=" col-sm-4 col-md-4 col-lg-4 text-left">
+            <table class=" col-lg-offset-0 col-sm-offset-0 col-md-offset-0 table table-bordered table-striped text-left">
+                <tr>
+                    <td>检测时间:</td>
+                    <td>@(train?.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+                </tr>
+                <tr>
+                    <td>车号: </td>
+                    <td>@(train?.NAME)</td>
+                </tr>
+                <tr>
+                    <td>速度:</td>
+                    <td>@(train?.SPEED)</td>
+                </tr>
+                <tr>
+                    <td>轴数:</td>
+                    <td>@(train?.AXLE_COUNT)</td>
+                </tr>
+                <tr>
+                    <td>配属段: </td>
+                    <td>@(train?.DEPOT)</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-8 col-md-8 col-lg-8 text-left">
+            @if (!string.IsNullOrEmpty(ViewBag.VideoName))
+            {
+                <video width="320" height="240" controls>
+                    <source src="@ViewBag.VideoName" type="video/mp4">
+                    浏览器版本过低，无法查看视频。建议使用Chrome浏览器
+                </video>
+            }
+            @*@if (imageKVPairs != null && imageKVPairs.Count() > 0)
+            {
+                foreach (var kv in imageKVPairs)
+                {
+                    <img style="width:250px;height:auto" src="data:image/jpeg;base64,@kv.Value" />
+                }
+            }*@
+
+        </div>
+    </div>
+</div>
+<div>
+    @foreach (var vehicle in Model)
+    {
+    <div class="row">
+
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th rowspan="2">车号</th>
+                    <th rowspan="2">轴位</th>
+                    <th rowspan="2">轮位</th>
+                    <th rowspan="2">探伤</th>
+                    <th colspan="2">擦伤</th>
+                    <th colspan="9">外形尺寸</th>
+                    <td>
+                        端位：@Html.DisplayEndPosition(train.END_POSITION) 在前
+                        @Html.ActionLink("(人工修改)", "UnitRecheck", "Vehicle", new { id = train.ID }, new { target = "_blank" })
+                    </td>
+
+                </tr>
+                <tr>
+                    @*<th>车号</th>*@
+                    @*<th>轮位</th>*@
+                    @*<th>探伤缺陷</th>*@
+                    <th>擦伤长度</th>
+                    <th>擦伤深度</th>
+                    <th>踏面磨耗</th>
+                    <th>轮缘厚度</th>
+                    <th>轮缘高度</th>
+                    <th>轮辋厚度</th>
+                    <th>QR值</th>
+                    <th>车轮直径</th>
+                    <th>内侧距</th>
+                    <th>不圆度</th>
+                    <th>同轴轮径差</th>
+                    
+                    @if(lastTrain != null)
+                    {
+                    <td>
+                        上次过车：@Html.ActionLink(lastTrain.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"), "Data", "Vehicle", new { id = lastTrain.ID }, new { target = "_blank" })
+                        <br />
+                        时间间隔：@ts.Days 日 @ts.Hours 时
+                    </td>
+                        }
+                   else
+                    {
+                        <td>未找到上次过车记录</td>
+                    }                    
+                </tr>
+                @for (int i = 0; i < vehicle.WHEEL.Count; i++)
+                {
+                    WHEEL wheel = vehicle.WHEEL.OrderBy(w => w.AXLE_POSITION).ThenByDescending(w => w.POSITION).ToList()[i];
+                <tr>
+                    @if (i % vehicle.WHEEL.Count == 0)
+                    {
+                        <td rowspan=@(vehicle.WHEEL.Count) align="center" valign="middle">@(vehicle.NAME)</td>
+                    }
+                    @if (i % 2 == 0)
+                    {
+                        <td rowspan="2">
+                            @wheel.AXLE_POSITION
+                        </td>
+                    }
+                    <td>                        
+                        @Html.ActionLink(wheel.POSITION, "Wheel", "Track", new { CarNumber = wheel.VEHICLE.NAME, WheelPosition = wheel.POSITION }, new { style = "color:black" })
+                        @Html.ActionLink("（图片）", "Photos", "Wheel", new { id = wheel.ID }, new { target = "_blank" })
+                    </td>
+                    <td>@Html.DisplayAlarmLevel(wheel.INSPECTION_ALARMLEVEL)</td>
+                    <td>@Html.DisplayValueLink(wheel, "MAX_BRUISE_LENGTH", "Scrape", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "MAX_BRUISE_DEPTH", "Scrape", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "TREAD_WEAR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "FLANGE_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "FLANGE_HEIGHT", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "RIM_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "QR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "DIAMETER", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "WHEELSET_DISTANCE", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                    <td>@Html.DisplayValueLink(wheel, "ROUND", "Scrape", "Wheel", new { id = wheel.ID })</td>
+
+                    @if (i % 2 == 0)
+                    {
+                        <td rowspan="2">
+                            @Html.DisplayValueLink(wheel, "COAXIAL_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = wheel.ID })
+                        </td>
+                    }
+                    @if (i % vehicle.WHEEL.Count == 0)
+                    {
+                        <td rowspan=@(vehicle.WHEEL.Count) align="center" valign="middle">
+
+
+                            @if (imageKVPairs != null && imageKVPairs.Count() > 0)
+                            {
+                                foreach (var kv in imageKVPairs)
+                                {
+                                    <img style="width:120px;height:auto" src="data:image/jpeg;base64,@kv.Value" />
+                                }
+                            }
+
+                        </td>
+                    }
+
+                </tr>
+                }
+            </table>
+    </div>
+    }
+
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+            $('.dropdown-toggle').dropdown();
+        });
+        
+    </script>
+}

@@ -1,0 +1,301 @@
+﻿@model IEnumerable<LYWeb.Models.StatReckecksModel>
+
+@{
+    ViewBag.Title = "复核统计";
+}
+
+<h2>复核统计</h2>
+
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <table class="table">
+        <tr>
+            <td>@Html.Label("故障类型")</td>
+            <td>
+                <input id="FaultItem" placeholder="请选择" list="faults" name="FaultItem" class="form-control" value="@(ViewBag.FaultItem)"/>
+                <datalist id="faults">
+                    @foreach (var fault in new TudsEntities().FAULT.Select(t => t.ITEM).Distinct().ToList())
+                    {
+                        <option>@(fault?.Trim())</option>
+                    }
+                </datalist>
+            </td>
+            <td>@Html.Label("探测点")</td>
+            <td>
+                <input id="Site" placeholder="请选择" list="sites" name="Site" class="form-control" value="@(ViewBag.Site)"/>
+                <datalist id="sites">
+                    @foreach (var site in new TudsEntities().SITES)
+                    {
+                        <option>@site.NAME</option>
+                    }
+                </datalist>
+            </td>
+
+            <td>
+            <input type="submit" class="btn btn-default" value="统计" />
+            @Html.ActionLink("导出数据", "Stat", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, Site = ViewBag.Site }, null)
+            &nbsp; /&nbsp;@Html.ActionLink("打印", "StatPDF", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, Site = ViewBag.Site }, new { target = "_blank" })
+                    </td>
+        </tr>
+        <tr>
+        <td>
+            <div class="am-form-group">
+                <label class="am-radio-inline tpl-login-remember-me">
+                    <input class="tpl-form-input" type="radio" name="status" id="status" value="0" checked="checked">设置起止时间
+                </label>
+            </div>
+        </td>
+            <td>@Html.Label("起始时间")</td>
+            <td><input id="StartTime" name="StartTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.StartTime)" /></td>
+            <td>@Html.Label("结束时间")</td>
+        <td><input id="EndTime" name="EndTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@(ViewBag.EndTime)" /></td>
+    </tr>
+    <tr>
+        <td>
+            <div class="am-form-group">
+                <label class="am-radio-inline tpl-login-remember-me">
+                    <input class="tpl-form-input" type="radio" name="status" id="status" value="byDay">日报表
+                </label>
+                <label class="am-radio-inline tpl-login-remember-me">
+                    <input class="tpl-form-input" type="radio" name="status" id="status" value="byMonth">月报表
+                </label>
+                <label class="am-radio-inline tpl-login-remember-me">
+                    <input class="tpl-form-input" type="radio" name="status" id="status" value="bySeason">季报表
+                </label>
+                <label class="am-radio-inline tpl-login-remember-me">
+                    <input class="tpl-form-input" type="radio" name="status" id="status" value="byYear">年报表
+                </label>
+            </div>
+        </td>
+        <td>
+            <select name="year" id="year" class="form-control" disabled="disabled">
+                <option value="year">选择年份</option>
+            </select>
+        </td>
+        <td>
+            <select name="season" id="season" class="form-control" disabled="disabled">
+                <option value="month">选择季度</option>
+            </select>
+        </td>
+        <td>
+            <select name="month" id="month" class="form-control" disabled="disabled">
+                <option value="month">选择月</option>
+            </select>
+        </td>
+        <td>
+            <select name="day" id="day" class="form-control" disabled="disabled">
+                <option value="day">选择日</option>
+            </select>
+            <!--<span id="result"></span>-->
+        </td>
+        </tr>
+    </table>
+
+}
+@if(Model != null)
+{ 
+    
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.SITE_NAME)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FAULT_ITEM)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NEED_RECHECK_CNT)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RECHECKED_CNT)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.CORRECT_ALARM_CNT)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FALSE_ALARM_CNT)
+        </th>
+               
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SITE_NAME)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FAULT_ITEM)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NEED_RECHECK_CNT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RECHECKED_CNT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CORRECT_ALARM_CNT)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FALSE_ALARM_CNT)
+            </td>
+
+        </tr>
+    }
+
+</table>
+}
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#RechesksStatistics").addClass('active');
+            $('input[type=radio][name=status]').change(function () {
+                if (this.value == '0') {
+                    $("#StartTime").removeAttr("disabled");
+                    $("#EndTime").removeAttr("disabled");
+                    $("#year").attr("disabled", "disabled");
+                    $("#season").attr("disabled", "disabled");
+                    $("#month").attr("disabled", "disabled");
+                    $("#day").attr("disabled", "disabled");
+                }
+                else  {
+                    $("#StartTime").attr("disabled", "disabled");
+                    $("#EndTime").attr("disabled", "disabled");
+                    if (this.value == 'byYear') {
+                        $("#year").removeAttr("disabled");
+                        $("#season").attr("disabled", "disabled");
+                        $("#month").attr("disabled", "disabled");
+                        $("#day").attr("disabled", "disabled");
+                    }
+                    else if (this.value == 'bySeason') {                      
+                        $("#year").removeAttr("disabled");
+                        $("#season").removeAttr("disabled");
+                        $("#month").attr("disabled", "disabled");
+                        $("#day").attr("disabled", "disabled");
+                    }
+                    else if (this.value == 'byMonth') {
+                        $("#year").removeAttr("disabled");
+                        $("#season").attr("disabled", "disabled");
+                        $("#month").removeAttr("disabled");
+                        $("#day").attr("disabled", "disabled");
+                    }
+                    else if (this.value == 'byDay') {
+                        $("#year").removeAttr("disabled");
+                        $("#season").attr("disabled", "disabled");
+                        $("#month").removeAttr("disabled");
+                        $("#day").removeAttr("disabled");
+                    }
+                }
+            });
+        });
+    </script>
+    <script>
+        //生成日期
+        function creatDate() {
+            //生成1900年-2100年
+            for (var i = 2018; i <= 2030; i++) {
+                var option = document.createElement('option');
+                option.setAttribute('value', i);
+                option.innerHTML = i;
+                year.appendChild(option);
+            }
+            //生成1月-12月
+            for (var i = 1; i <= 12; i++) {
+                var option = document.createElement('option');
+                option.setAttribute('value', i);
+                option.innerHTML = i;
+                month.appendChild(option);
+            }
+            //生成1日—31日
+            for (var i = 1; i <= 31; i++) {
+                var option = document.createElement('option');
+                option.setAttribute('value', i);
+                option.innerHTML = i;
+                day.appendChild(option);
+            }
+            //生成1-4季度
+            for (var i = 1; i <= 4; i++) {
+                var option = document.createElement('option');
+                option.setAttribute('value', i);
+                option.innerHTML = i;
+                season.appendChild(option);
+            }
+        }
+        creatDate();
+        //保存某年某月的天数
+        var days;
+        //年份点击
+        year.onclick = function () {
+            //月份显示默认值
+            month.options[0].selected = true;
+            //天数显示默认值
+            day.options[0].selected = true;
+        }
+        //月份点击
+        month.onclick = function () {
+            //天数显示默认值
+            day.options[0].selected = true;
+            //计算天数的显示范围
+            //如果是2月
+            if (month.value == 2) {
+                //如果是闰年
+                if ((year.value % 4 === 0 && year.value % 100 !== 0) || year.value % 400 === 0) {
+                    days = 29;
+                    //如果是平年
+                } else {
+                    days = 28;
+                }
+                //如果是第4、6、9、11月
+            } else if (month.value == 4 || month.value == 6 || month.value == 9 || month.value == 11) {
+                days = 30;
+            } else {
+                days = 31;
+            }
+            //增加或删除天数
+            //如果是28天，则删除29、30、31天(即使他们不存在也不报错)
+            if (days == 28) {
+                day.remove(31);
+                day.remove(30);
+                day.remove(29);
+            }
+            //如果是29天
+            if (days == 29) {
+                day.remove(31);
+                day.remove(30);
+                //如果第29天不存在，则添加第29天
+                if (!day.options[29]) {
+                    day.add(new Option('29', '29'), undefined)
+                }
+            }
+            //如果是30天
+            if (days == 30) {
+                day.remove(31);
+                //如果第29天不存在，则添加第29天
+                if (!day.options[29]) {
+                    day.add(new Option('29', '29'), undefined)
+                }
+                //如果第30天不存在，则添加第30天
+                if (!day.options[30]) {
+                    day.add(new Option('30', '30'), undefined)
+                }
+            }
+            //如果是31天
+            if (days == 31) {
+                //如果第29天不存在，则添加第29天
+                if (!day.options[29]) {
+                    day.add(new Option('29', '29'), undefined)
+                }
+                //如果第30天不存在，则添加第30天
+                if (!day.options[30]) {
+                    day.add(new Option('30', '30'), undefined)
+                }
+                //如果第31天不存在，则添加第31天
+                if (!day.options[31]) {
+                    day.add(new Option('31', '31'), undefined)
+                }
+            }
+        }
+    </script>  
+} 

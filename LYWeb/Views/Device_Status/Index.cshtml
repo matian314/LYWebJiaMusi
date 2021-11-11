@@ -1,0 +1,72 @@
+﻿@model IEnumerable<LYWeb.Models.DEVICE_STATUS>
+
+@{
+    ViewBag.Title = "设备状态";
+}
+
+<h2>设备状态</h2>
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.CHECK_TIME)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.STATUS)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.LIQUID_LEVEL)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.WATER_TEMPERATURE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.A_TEMPERATURE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.B_TEMPERATURE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ENVIRONMENT_TEMPERATURE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DISK_SPACE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NEXT_CHECK_TIME)
+        </th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.CHECK_TIME)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.STATUS)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.LIQUID_LEVEL)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.WATER_TEMPERATURE)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.A_TEMPERATURE)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.B_TEMPERATURE)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ENVIRONMENT_TEMPERATURE)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.DISK_SPACE)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.NEXT_CHECK_TIME)
+        </td>
+    </tr>
+}
+
+</table>

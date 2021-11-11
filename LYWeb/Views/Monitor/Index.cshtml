@@ -1,0 +1,338 @@
+﻿@model IEnumerable<LYWeb.Models.TRAIN>
+@using PagedList;
+@using LYWeb.Models.MetaData;
+@{
+    ViewBag.Title = "过车监控";
+    string url = Request.Url.ToString();
+    List<TRAIN> alarmTrains = new List<TRAIN>();
+}
+
+<div class="container col-lg-offset-0 ">
+    <div class="row ">
+        <div>
+            <ul class="nav nav-pills">
+                <li class="active"><a href="@Url.Action("Index","Monitor")">数据刷新</a></li>
+                <li class="active"><a href="@Url.Action("Index", "Vehicle")">过车查询</a></li>
+                <li class="dropdown active">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">综合查询<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="@Url.Action("Index","Fault")">超限查询</a></li>
+                        <li class="divider"></li>
+                        <li><a href="@Url.Action("Train","Track")">历史追踪</a></li>
+                        <li><a href="@Url.Action("Wheel","Track")">车轮追踪</a></li>
+                    </ul>
+                </li>
+                @if (!string.IsNullOrEmpty(Session["role"]?.ToString()) && Session["role"].ToString() == "管理员")
+                {
+                    <li class="dropdown active">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">综合配置<b class="caret bottom-up"></b></a>
+                        @*<ul class="dropdown-menu bottom-up pull-right">*@
+                        <ul class="dropdown-menu">
+                            <li><a href="@Url.Action("CarType", "Unit")">门限管理</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="active"><a href="@Url.Action("Index", "Unit")">机车管理</a></li>
+                    <li class="active"><a href="@Url.Action("UserEdit", "User")">用户管理</a></li>
+                }
+                <li class="active"><a href="@Url.Action("ChangePassword", "User")">修改密码</a></li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+<h2 style="text-align:center">过车监控</h2>
+<link href="~/Content/default.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="~/JS/artDialog.min.js"></script>
+<script type="text/javascript">
+    function alertAlarm(trainInfo, ids) {
+        document.getElementById('warnVoice').src = "~/Media/warning.wav";
+
+        var contentstring = '以下列车有未处理超限：' + trainInfo;
+        //报警对话框
+        art.dialog({
+            title: '报警确认',
+            content: contentstring,
+            okValue: '确定',
+            ok: function () {
+                document.getElementById('warnVoice').src = "";
+                audio.pause();
+                $.ajax({
+                    type: "get",
+                    dataType: "text",
+                    url: "./DeleteFromAlarmSessionByIds",
+                    data: { deleteIds: ids },
+                    success: function () {
+
+                        alert('确认成功');
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert('确认失败' + jqXHR.responseText + jqXHR.status + jqXHR.readyState + jqXHR.statusText + textStatus + errorThrown);
+                    }
+                });
+            },
+
+        });
+    }
+
+    function switchLoad() {
+        //alert("switchLoad");
+        var url = '@Url.Action("GetAlertSession","Monitor",null)';
+        $.ajax({
+            type: "get",
+            dataType: "text",
+            url: url,//"../Monitor/GetAlertSession",
+            data: "",
+            success: function (data) {
+
+                var alertCheckBox = document.getElementById("alertSwitch");
+                if (data == "T") {
+                    alertCheckBox.checked = true;
+                }
+                else {
+                    alertCheckBox.checked = false;
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                //alert('确认失败' + jqXHR.responseText + jqXHR.status + jqXHR.readyState + jqXHR.statusText + textStatus + errorThrown);
+                alert('确认失败' + jqXHR.status);
+            }
+
+        });
+        //$.get("./GetAlertSession", function (data) {
+        //    alert("Data Loaded: " + data);
+        //});
+    }
+
+    function switchClicked(checkbox) {
+        var changed;
+        var url = '@Url.Action("ChangeAlertSession", "Monitor",null)';
+        if (checkbox.checked == true) {
+            changed = 'T';
+        } else {
+            changed = 'F';
+        }
+        $.ajax({
+            type: "get",
+            dataType: "text",
+            url: url,//"../Monitor/ChangeAlertSession",
+            data: { alert : changed },
+            success: function (data) {
+                alert('过车提示修改为'+changed);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                //alert('确认失败' + jqXHR.responseText + jqXHR.status + jqXHR.readyState + jqXHR.statusText + textStatus + errorThrown);
+                alert('修改为' + changed +'失败' + jqXHR.status);
+            }
+        });
+    }
+
+    function remindVoice() {
+        var x = document.getElementById("alertMusic");
+        x.muted = false;
+        x.play();
+        alert("有新的过车，请查看");
+    }
+//马天：下面这个function合入
+    function remindVoice2(string) {
+        var x = document.getElementById("alertMusicSound");
+        x.muted = false;
+        x.play();
+        alert(string);
+    }
+
+</script>
+<bgsound id="warnVoice" width="0" height="0" src="" autostart="true" loop="-1"></bgsound>
+<audio id="alertMusic" muted>
+    <source src="@Url.Content("~/Media/14431.mp3")" type="audio/mpeg">
+</audio>
+<!--马天：下面这个audio标签合入-->
+<audio id="alertMusicSound" muted>
+    <source src="@Url.Content("~/Media/warning.wav")" type="audio/x-wav">
+</audio>
+
+
+<p id="demo"></p>
+
+<table class="table table-bordered table-striped">
+    <tr>
+        <th rowspan="2">
+            检测时间
+        </th>
+        <th rowspan="2">
+            车号
+        </th>
+        <th rowspan="2">
+            轴数
+        </th>
+        <th rowspan="2">
+            探伤
+        </th>
+        <th rowspan="2">
+            擦伤
+        </th>
+        <th colspan="7">
+            外形几何尺寸
+        </th>
+        <th rowspan="2">
+            配属段
+        </th>
+        <th rowspan="2">
+            超限
+        </th>
+        <th rowspan="2">
+            端位
+        </th>
+        <th rowspan="2">
+            车号人工复核
+        </th>
+    </tr>
+    <tr>
+        <th>车轮直径</th>
+        <th>踏面磨耗</th>
+        <th>轮辋厚度</th>
+        <th>轮缘厚度</th>
+        <th>轮缘高度</th>
+        <th>QR值</th>
+        <th>内侧距</th>
+    </tr>
+    @{/*序号*/
+        int index = 1; }
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"), "Data", "Vehicle", new { id = item.ID }, new { style = "color:black" })
+            </td>
+            <td>
+                @Html.ActionLink(item.NAME, "Train", "Track", new { CarNumber = item.NAME }, new { style = "color:black" })
+            </td>
+            <td>
+                @item.AXLE_COUNT
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.INSPECTION_ALARM_LEVEL, "Inspection", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.SCRAPE_ALARM_LEVEL, "Scrape", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.DIAMETER_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.TREAD_WEAR_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.RIM_THICKNESS_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.FLANGE_THICKNESS_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.FLANGE_HEIGHT_ALARM_LEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.QR_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @Html.DisplayAlarmLink(item.WHEELSET_DISTANCE_ALARMLEVEL, "Dimension", "Vehicle", new { id = item.ID })
+            </td>
+            <td>
+                @item.DEPOT
+            </td>
+            <td>
+                @Html.DisplayFaultLinkForTrain(item.ID)
+
+
+            </td>
+            <td>
+                @Html.DisplayEndPosition(item.END_POSITION) 在前
+            </td>
+            <td>
+                @Html.ActionLink("车号复核", "UnitRecheck", "Vehicle", new { id = item.ID }, null)
+            </td>
+        </tr>
+        @*if (HtmlHelperExtensions.IsAlarmDealed(item.ID))
+            {
+                string timeAndName = item.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss") + " " + item.NAME;
+                <script type="text/javascript">
+                        var time = "@timeAndName";
+                        //myAlarm(time);
+                </script>
+            }*@
+    }
+
+</table>
+@Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", new { page }))
+
+<input type="checkbox" id="alertSwitch" on onclick="switchClicked(this)" />新过车提示（√为开启）
+
+
+@{
+
+    if (ViewBag.PlayAlert == true && Session["isRemindLatestTrain"] != null && Session["isRemindLatestTrain"].ToString() == "T")
+    {
+        <script>
+            remindVoice();
+        </script>
+    }
+    //马天：把下面这个if合入
+    if (!string.IsNullOrEmpty(ViewBag.Undealed))
+    {
+
+        <script>
+            var aString = '@ViewBag.Undealed';
+            remindVoice2(aString);
+        </script>
+    }
+}
+
+@*@{
+        //取session，将本次新加的车信息放进弹窗进行报警
+        string trainName = "", ids = "";
+
+        try
+        {
+            List<AlarmTrain> alarms = (List<AlarmTrain>)Session["alarmTrains"];
+            foreach (AlarmTrain train in alarms)
+            {
+                if (train.IsAlarmed == false)
+                {
+                    trainName = trainName + "  " + train.Time + " " + train.Name + " , ";
+                    ids = ids + train.ID + "|";
+                }
+
+            }
+            if (ids != "")
+            {
+                <script type="text/javascript">
+                var name = "@trainName";
+                var ids = "@ids";
+                //alertAlarm(name,ids);
+                </script>
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+
+
+    }*@
+@section Scripts
+{
+    <script type="text/javascript">
+        function myrefresh() {
+            //相关处理
+            window.location.reload();
+        }//重新加载页面}
+
+        $(document).ready(function () {
+            switchLoad();//取session， 加载过车提示是否被选中
+
+            setTimeout('myrefresh()', 30000); //每30s刷新一次
+            $("#MonitorIndex").addClass('active');
+            $('.dropdown-toggle').dropdown();
+        })
+
+    </script>
+}

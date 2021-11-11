@@ -1,0 +1,428 @@
+﻿@model IEnumerable<LYWeb.Models.WHEEL>
+@using LYWeb.Helpers;
+@{
+    LYWeb.Models.WHEEL wheel = ViewBag.Wheel;
+    ViewBag.Title = wheel?.NAME + "车轮历史追踪";
+}
+@using PagedList.Mvc;
+@using PagedList;
+<link href="/Content/PagedList.css" rel="stylesheet" type="text/css" />
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<h5 style="text-align:right">单位:mm</h5>
+@{
+    var vehicleSelect = ViewBag.VehicleSelectList as IEnumerable<string>;
+    var wheelSelect = ViewBag.WheelSelectList as IEnumerable<string>;
+
+    var vehicleSelectItems = vehicleSelect.Select(x => new SelectListItem
+    {
+        Text = x.ToString(),
+        Value = x.ToString(),
+        Selected = SelectListFactory.IsSelected(x.ToString(), ViewBag.VehicleNumber)
+    });
+
+    var wheelSelectItems = wheelSelect.Select(x => new SelectListItem
+    {
+        Text = x.ToString(),
+        Value = x.ToString(),
+        Selected = SelectListFactory.IsSelected(x.ToString(), ViewBag.WheelPosition)
+    });
+}
+@{
+    using (Html.BeginForm(FormMethod.Get))
+    {
+        @Html.AntiForgeryToken()
+        <table class="table table-bordered table-striped">
+            <tr>
+                <td>@Html.Label("车号")</td>
+                <td>
+                    <input id="CarNumber" placeholder="请选择" list="units" name="CarNumber" class="form-control" value="@ViewBag.CarNumber" />
+                    <datalist id="units">
+                        @foreach (var unit in new TudsEntities().UNIT_NUMBER_DICT)
+                        {
+                            <option>@unit.UNIT_NUMBER</option>
+                        }
+                    </datalist>
+                </td>
+                @*<td>@Html.Label("车号")</td>
+                <td>@Html.DropDownList("VehicleNumber", vehicleSelectItems, "", new { @class = "form-control" })</td>*@
+                <td>@Html.Label("轮位")</td>
+                <td>@Html.DropDownList("WheelPosition", wheelSelectItems, "", new { @class = "form-control" })</td>
+            </tr>
+            <tr>
+                <td>@Html.Label("起始时间")</td>
+                <td><input id="StartTime" name="StartTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@ViewBag.StartTime" /></td>
+                <td>@Html.Label("结束时间")</td>
+                <td><input id="EndTime" name="EndTime" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn',skin:'whyGreen'})" class="form-control" value="@ViewBag.EndTime" /></td>
+                <td>
+                    @Html.ActionLink("导出数据", "Wheel", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, WheelPosition = ViewBag.WheelPosition, VehicleNumber = ViewBag.VehicleNumber }, null)
+                    &nbsp;/&nbsp;    @Html.ActionLink("打印", "WheelPDF", "Excel", new { CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, WheelPosition = ViewBag.WheelPosition, VehicleNumber = ViewBag.VehicleNumber }, null)
+                </td>
+                <td><input type="submit" class="btn btn-default" value="查询" /></td>
+            </tr>
+        </table>
+    }
+    @Html.ValidationMessage("fail", new { style = "color:red" })
+    if (wheel != null)
+    {
+
+        <table class="table table-condensed">
+            <tr>
+                <td></td>
+                <td style="text-align:right">轮号</td>
+                <td style="text-align:left">@Html.DisplayName(wheel.NAME)</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>配属段</td>
+                <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.DEPOT)</td>
+                <td>车型</td>
+                <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.VEHICLE.FirstOrDefault()?.CAR_TYPE1?.TYPE ?? "暂无车型")</td>
+
+            </tr>
+            <tr>
+                <td>车号</td>
+                <td>@Html.DisplayName(wheel.VEHICLE.NAME)</td>
+                <td>轮位</td>
+                <td>@Html.DisplayName(wheel.POSITION.ToString())</td>
+            </tr>
+        </table>
+
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.DETECTION_TIME)</th>
+                <th>探测站</th>
+                <th>踏面磨耗</th>
+                <th>轮缘厚度</th>
+                <th>轮缘高度</th>
+                <th>QR值</th>
+                <th>车轮直径</th>
+                <th>内侧距</th>
+                <th>同轴轮径差</th>
+                @*<th>同转向架轮径差</th>
+                <th>同车轮径差</th>*@
+                <th>擦伤深度</th>
+                <th>擦伤长度</th>
+                <th>径跳/不圆度</th>
+                <th>探伤缺陷</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@(item.VEHICLE.TRAIN.DETECTION_TIME.ToString("yyyy/MM/dd HH:mm:ss"))</td>
+                    <td>@item.VEHICLE.TRAIN.SITES.NAME</td>
+                    <td>@Html.DisplayValueLink(item, "TREAD_WEAR", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "FLANGE_THICKNESS", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "FLANGE_HEIGHT", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "QR", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "DIAMETER", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "WHEELSET_DISTANCE", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "COAXIAL_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = item.ID })</td>
+                    @*<td>@Html.DisplayValueLink(item, "BOGIE_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "VEHICLE_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = item.ID })</td>*@
+                    <td>@Html.DisplayValueLink(item, "MAX_BRUISE_DEPTH", "Scrape", "Wheel", new { id = item.ID })
+                    <td>@Html.DisplayValueLink(item, "MAX_BRUISE_LENGTH", "Scrape", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayValueLink(item, "ROUND", "Scrape", "Wheel", new { id = item.ID })</td>
+                    <td>@Html.DisplayAlarmLevel(item.INSPECTION_ALARMLEVEL)</td>
+                </tr>
+            }
+        </table>
+        @Html.PagedListPager((IPagedList)Model, page => Url.Action("Wheel", new { page, CarNumber = ViewBag.CarNumber, StartTime = ViewBag.StartTime, EndTime = ViewBag.EndTime, WheelPosition = ViewBag.WheelPosition}))
+        //数据变化趋势图
+        <div id="container1" style="max-width:inherit;height:400px"></div>
+        <div id="container2" style="max-width:inherit;height:400px"></div>
+        <div id="container3" style="max-width:inherit;height:400px"></div>
+        <div id="container4" style="max-width:inherit;height:400px"></div>
+        <div id="container5" style="max-width:inherit;height:400px"></div>
+    }
+}
+
+@section scripts
+{
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#TrackWheel").addClass('active');
+        });
+    </script>
+    @if (wheel != null)
+    {
+        <script src="~/Scripts/highcharts/highcharts.js"></script>
+        <script src="~/Scripts/highcharts/modules/exporting.js"></script>
+        <script src="~/Scripts/highcharts/modules/series-label.js"></script>
+        <script src="~/Scripts/highcharts/modules/oldie.js"></script>
+        <script src="~/Scripts/highcharts/plugins/highcharts-zh_CN.js"></script>
+
+        <script type="text/javascript">
+        var diameter = @ViewBag.Diameter;
+        var flange_thickness = @ViewBag.FlangeThickness;
+        var flange_height = @ViewBag.FlangeHeight;
+        var rim_thickness = @ViewBag.RimThickness;
+        var qr = @ViewBag.QR;
+        var wheelset = @ViewBag.WheelsetDistance;
+        var vehicle_diff = @ViewBag.VehicleDiff;
+        var coaxial_diff = @ViewBag.CoaxialDiff;
+        var bogie_diff = @ViewBag.BogieDiff;
+        var scrape_depth = @ViewBag.ScrapeDepth;
+        var scrape_length = @ViewBag.ScrapeLength;
+        var round = @ViewBag.Round;
+        var chart1 = Highcharts.chart('container1', {
+            title: {
+                text: '列车车轮直径'
+            },
+            subtitle: {
+                text: '数据来源：哈科所'
+            },
+            yAxis: {
+                title: {
+                    text: '数值(mm)'
+                }
+            },
+            xAxis: {
+                title: {
+                    text: '序号（时间顺序排列）'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+            plotOptions: {
+                series: {
+                    label: {
+                        connectorAllowed: false
+                    },
+                    pointStart: 1
+                }
+            },
+            series: [{
+                name: '车轮直径',
+                data: diameter
+            }],
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 500
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+        });
+            var chart2 = Highcharts.chart('container2', {
+                title: {
+                    text: '列车车轮轮缘，轮辋尺寸'
+                },
+                subtitle: {
+                    text: '数据来源：哈科所'
+                },
+                yAxis: {
+                    title: {
+                        text: '数值(mm)'
+                    }
+                },                
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle'
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false
+                        },
+                        pointStart: 1
+                    }
+                },
+                series: [{
+                    name: '轮缘高度',
+                    data: flange_height
+                },
+                    {
+                        name: '轮缘厚度',
+                        data: flange_thickness
+                    },
+                    {
+                        name: 'QR值',
+                        data: qr
+                    },
+                    {
+                        name: '轮辋厚度',
+                        data: rim_thickness
+                    }
+                ],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+            });
+            var chart3 = Highcharts.chart('container3', {
+                title: {
+                    text: '列车车轮内侧距'
+                },
+                subtitle: {
+                    text: '数据来源：哈科所'
+                },
+                yAxis: {
+                    title: {
+                        text: '数值(mm)'
+                    }
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle'
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false
+                        },
+                        pointStart: 1
+                    }
+                },
+                series: [{
+                    name: '内侧距',
+                    data: wheelset
+                }],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+            });
+            var chart4 = Highcharts.chart('container4', {
+                title: {
+                    text: '列车车轮轮径差'
+                },
+                subtitle: {
+                    text: '数据来源：哈科所'
+                },
+                yAxis: {
+                    title: {
+                        text: '数值(mm)'
+                    }
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle'
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false
+                        },
+                        pointStart: 1
+                    }
+                },
+                series: [{
+                    name: '同轴轮径差',
+                    data: coaxial_diff
+                //},
+                //{
+                //    name: '同转向架轮径差',
+                //    data: bogie_diff
+                //},
+                //{
+                //    name: '同车轮径差',
+                //    data: vehicle_diff
+                }
+                ],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+            });
+            var chart5 = Highcharts.chart('container5', {
+                title: {
+                    text: '列车车轮擦伤'
+                },
+                subtitle: {
+                    text: '数据来源：哈科所'
+                },
+                yAxis: {
+                    title: {
+                        text: '数值(mm)'
+                    }
+                },
+                legend: {
+                    layout: 'vertical',
+                    align: 'right',
+                    verticalAlign: 'middle'
+                },
+                plotOptions: {
+                    series: {
+                        label: {
+                            connectorAllowed: false
+                        },
+                        pointStart: 1
+                    }
+                },
+                series: [{
+                    name: '擦伤长度',
+                    data: scrape_length
+                },
+                {
+                    name: '擦伤深度',
+                    data: scrape_depth
+                    },
+                {
+                    name : '不圆度/径跳',
+                    data : round
+                    }
+                ],
+                responsive: {
+                    rules: [{
+                        condition: {
+                            maxWidth: 500
+                        },
+                        chartOptions: {
+                            legend: {
+                                layout: 'horizontal',
+                                align: 'center',
+                                verticalAlign: 'bottom'
+                            }
+                        }
+                    }]
+                }
+            });
+        </script>
+    }
+}
+

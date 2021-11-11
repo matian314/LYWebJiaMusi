@@ -1,0 +1,92 @@
+﻿@model LYWeb.Models.RECHECKS
+@using LYWeb.Helpers
+@{
+    FAULT fault = Model.FAULT;
+    WHEEL wheel = fault.WHEEL;
+    ViewBag.Title = wheel.NAME + " " + fault.ITEM + "复核";
+}
+<h2 style="text-align:center">@ViewBag.Title</h2>
+@Html.ActionLink("打印复核通知单", "RecheckNotice", "Excel", new { id = fault.ID }, new { target = "_blank" })
+<form method="post">
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.HiddenFor(model => model.ID)
+    @Html.HiddenFor(model => model.FAULT_ID)
+    @Html.HiddenFor(model => model.DEALT_TIME)
+    @Html.HiddenFor(model => model.HANDLER)
+    @Html.HiddenFor(model => model.STATE)
+    <h5><input style="width:100px" value="@Model.TEAM_NAME" name="TEAM_NAME" id="TEAM_NAME" type="text" />检修班:@Html.ValidationMessageFor(model => model.TEAM_NAME, "", new { @class = "text-danger" })</h5>
+
+    <h5>@($"{wheel.VEHICLE.TRAIN.DETECTION_TIME.ToString("yyyy年M月d日")}轮对故障动态监测系统探伤模块/擦伤模块/尺寸模块监测到{wheel.VEHICLE.TRAIN.NAME}列车轮对数据超限，请进行人工复核，具体内容如下表:")</h5>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>车辆号</th>
+            <th>超限项目</th>
+            <th>轮位</th>
+            <th>检测值</th>
+            <th>复核值</th>
+            <th>复核人</th>
+            <th>复核日期</th>
+            <th>误差分析</th>
+            <th>处理情况</th>
+            <th>处理人</th>
+        </tr>
+        <tr>
+            <td>@wheel.VEHICLE.NAME</td>
+            <td>@fault.ITEM</td>
+            <td>@wheel.POSITION</td>
+            <td>@fault.VALUE</td>
+            <td><input type="text" value="@(Model.VALUE)" name="VALUE" id="VALUE" style="width:60px" />@Html.ValidationMessageFor(model => model.VALUE, "", new { @class = "text-danger" })</td>
+            <td><input type="text" value="@(Model.RECHECK_PERSON)" name="RECHECK_PERSON" id="RECHECK_PERSON" style="width:80px" />@Html.ValidationMessageFor(model => model.RECHECK_PERSON, "", new { @class = "text-danger" })</td>
+            <td><input style="width:150px" type="text" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',lang:'zh-cn',skin:'whyGreen'})" name="RECHECKED_TIME" id="RECHECKED_TIME" />@Html.ValidationMessageFor(model => model.RECHECKED_TIME, "", new { @class = "text-danger" })</td>
+
+            <td>
+                <input type="text" value="@(Model.ERROR_ANALYSIS)" name="ERROR_ANALYSIS" id="ERROR_ANALYSIS" style="width:120px" list="erroranalysislist"/>
+                <datalist id="erroranalysislist">
+                    @foreach (var analysis in SelectListFactory.CreateErrorAnalysisList())
+                    {
+                        <option>@analysis</option>
+                    }
+                </datalist>
+                @Html.ValidationMessageFor(model => model.ERROR_ANALYSIS, "", new { @class = "text-danger" })
+            </td>
+
+
+            <td>
+                <input type="text" value="@(Model.CONCLUSION)" name="CONCLUSION" id="CONCLUSION" style="width:80px" list="conclusionlist"/>
+                <datalist id="conclusionlist">
+                    @foreach (var conclusion in SelectListFactory.CreateRecheckConclusionList())
+                    {
+                        <option>@conclusion</option>
+                    }
+                </datalist>
+                @Html.ValidationMessageFor(model => model.CONCLUSION, "", new { @class = "text-danger" })
+            </td>
+
+            <td><input type="text" value="@(Model.RECHECK_HANDLER)" name="RECHECK_HANDLER" id="RECHECK_HANDLER" style="width:80px" />@Html.ValidationMessageFor(model => model.RECHECK_HANDLER, "", new { @class = "text-danger" })</td>
+        </tr>
+    </table>
+    <table class="table">
+        <tr>
+            <td>检修工长</td>
+            <td>@Html.EditorFor(model => model.FOREMAN)@Html.ValidationMessageFor(model => model.FOREMAN, "", new { @class = "text-danger" })</td>
+            <td>质检员</td>
+            <td>@Html.EditorFor(model => model.QUALITY_INSPECTOR)@Html.ValidationMessageFor(model => model.QUALITY_INSPECTOR, "", new { @class = "text-danger" })</td>
+            <td>调度员</td>
+            <td>@Html.EditorFor(model => model.DISPATCHER)@Html.ValidationMessageFor(model => model.DISPATCHER, "", new { @class = "text-danger" })</td>
+        </tr>
+    </table>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="保存" class="btn btn-default" />
+        </div>
+    </div>
+</form>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#FaultIndex").addClass('active');
+        });
+    </script>
+}

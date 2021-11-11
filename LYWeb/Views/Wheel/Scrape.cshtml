@@ -1,0 +1,97 @@
+﻿@{
+    WHEEL wheel = ViewBag.Wheel;
+    ViewBag.Title = wheel.NAME + " - 车轮擦伤图像";
+    string data = ViewBag.Data;
+}
+
+
+<link rel="icon" href="~/Content/themes/base/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<h2 style="text-align:center">@wheel.NAME - 车轮擦伤图像</h2>
+@if (wheel != null)
+{
+    <table class="table">
+        <tr>
+            <td>轮号</td>
+            <td>@Html.DisplayName(wheel.NAME)</td>
+            <td>探测站</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.SITES.NAME)</td>
+            <td>车号</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.UNIT_NUMBER)</td>
+        </tr>
+        <tr>
+            <td>车型</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.VEHICLE.FirstOrDefault()?.CAR_TYPE1?.TYPE ?? "暂无车型")</td>
+            <td>车号</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.NAME)</td>
+            <td>轮位</td>
+            <td>@Html.DisplayName(wheel.POSITION.ToString())</td>
+        </tr>
+        <tr>
+            <td>擦伤长度</td>
+            <td>@wheel.MAX_BRUISE_LENGTH</td>
+            <td>擦伤深度</td>
+            <td>@wheel.MAX_BRUISE_DEPTH</td>
+            <td>径跳</td>
+            <td>@wheel.ROUND</td>
+        </tr>
+    </table>
+}
+@if (!string.IsNullOrWhiteSpace(data))
+{
+    <div id="container" style="max-width:800px;height:400px"></div>
+    <script src="~/Scripts/highcharts/highcharts.js"></script>
+    <script src="~/Scripts/highcharts/modules/exporting.js"></script>
+    <script src="~/Scripts/highcharts/plugins/highcharts-zh_CN.js"></script>
+    <div id="container" style="max-width:800px;height:400px"></div>
+    <script>
+    var data = @ViewBag.Data;
+        var wheelName = '@ViewBag.WheelName';
+        var maxValue = @ViewBag.Max;
+        var minValue = @ViewBag.Min;
+    var title = wheelName + '车轮擦伤图像';
+        var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'spline'
+            },
+            title: {
+                text: title
+            },
+            xAxis: {
+                //type: 'datetime',
+                title: {
+                    text: null
+                },
+            },
+            colors: ['#0000FF'],
+            yAxis: {
+                title: {
+                    text: null
+                },
+                min: minValue,
+                max: maxValue
+            //min: 0
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x}, {point.y:.2f}mm'
+        },
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: false
+                }
+            }
+        },
+        series: [{
+            name: '车轮',
+            data: data
+        }]
+    });
+
+    </script>
+}
+else
+{
+    <h3>暂无数据</h3>
+}

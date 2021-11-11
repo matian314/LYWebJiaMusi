@@ -1,0 +1,174 @@
+﻿@model LYWeb.Models.CAR_TYPE
+@using LYWeb.Helpers
+@{
+    ViewBag.Title = "车型管理";
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+
+
+    <div class="form-horizontal">
+        <hr />
+        @Html.HiddenFor(model => model.ID)
+        @Html.HiddenFor(model => model.TYPE)
+        @Html.HiddenFor(model => model.WHEEL_COUNT)
+        @Html.HiddenFor(model => model.AXLE_COUNT)
+        <table class="table">
+            <tr>
+                <td>@Html.Label("车型")</td>
+                <td>@Html.DropDownList("CarId", SelectListFactory.CreateCarTypeSelectList((string)ViewBag.CarType), new { @class = "form-control" })</td>
+                <td><button type="submit" name="submit" class="btn btn-default" value="search" formmethod="post">查询</button></td>
+            </tr>
+        </table>
+        <table class="table table-bordered table-striped" style="text-align:center">
+            <tr>
+                <th>@Html.Label("配置项")</th>
+                <th>@Html.Label("基准值")</th>
+                <th>@Html.Label("正常(下限)")</th>
+                <th>@Html.Label("正常(上限)")</th>
+                <th>@Html.Label("II级(下限)")</th>
+                <th>@Html.Label("II级(上限)")</th>
+            </tr>
+            <tr>
+                <td>轮径</td>
+                <td>@Html.EditorFor(Model => Model.DIAMETER_STANDARD)</td>
+                <td>>=@Html.EditorFor(Model => Model.DIAMETER_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.DIAMETER_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.DIAMETER_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.DIAMETER_UPPERBOUND2)</td>
+
+            </tr>
+            <tr>
+                <td>轮缘厚度</td>
+                <td>@Html.EditorFor(Model => Model.FLANGE_THICKNESS_STANDARD)</td>
+                <td>>=@Html.EditorFor(Model => Model.FLANGE_THICKNESS_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.FLANGE_THICKNESS_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.FLANGE_THICKNESS_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.FLANGE_THICKNESS_UPPERBOUND2)</td>
+
+            </tr>
+            <tr>
+                <td>轮缘高度</td>
+                <td>                    
+                    @Html.EditorFor(Model => Model.FLANGE_HEIGHT_STANDARD)
+                </td>
+                <td>>=@Html.EditorFor(Model => Model.FLANGE_HEIGHT_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.FLANGE_HEIGHT_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.FLANGE_HEIGHT_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.FLANGE_HEIGHT_UPPERBOUND2)</td>
+
+            </tr>
+            <tr>
+                <td>轮辋厚度</td>
+                <td>
+                    @Html.TextBoxFor(Model => Model.RIM_THICKNESS_STANDARD, new { @readonly = "readonly" })
+                                @*@Html.EditorFor(Model => Model.RIM_THICKNESS_STANDARD)*@
+                            </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.RIM_THICKNESS_LOWERBOUND1, new { @readonly = "readonly" })
+                @*@Html.EditorFor(Model => Model.RIM_THICKNESS_LOWERBOUND1)*@
+                </td>
+                <td>
+                    <=@Html.TextBoxFor(Model => Model.RIM_THICKNESS_UPPERBOUND1, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.RIM_THICKNESS_UPPERBOUND1)*@
+                </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.RIM_THICKNESS_LOWERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.RIM_THICKNESS_LOWERBOUND2)*@
+                </td>
+                <td>
+                    <= @Html.TextBoxFor(Model => Model.RIM_THICKNESS_UPPERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.RIM_THICKNESS_UPPERBOUND2)*@
+                </td>
+
+            </tr>
+            <tr>
+                <td>QR值</td>
+                <td>
+                    @Html.TextBoxFor(Model => Model.QR_STANDARD, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.QR_STANDARD)*@
+                </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.QR_LOWERBOUND1, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.QR_LOWERBOUND1)*@
+                </td>
+                <td>
+                    <= @Html.TextBoxFor(Model => Model.QR_UPPERBOUND1, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.QR_UPPERBOUND1)*@
+                </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.QR_LOWERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.QR_LOWERBOUND2)*@
+                </td>
+                <td>
+                    <= @Html.TextBoxFor(Model => Model.QR_UPPERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.QR_UPPERBOUND2)*@
+                </td>
+
+            </tr>
+            <tr>
+                <td>内侧距</td>
+                <td>@Html.EditorFor(Model => Model.WHEELSET_DISTANCE_STANDARD)</td>
+                <td>>=@Html.EditorFor(Model => Model.WHEELSET_DISTANCE_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.WHEELSET_DISTANCE_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.WHEELSET_DISTANCE_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.WHEELSET_DISTANCE_UPPERBOUND2)</td>
+
+            </tr>
+            <tr>
+                <td>踏面磨耗</td>
+                <td>@Html.EditorFor(Model => Model.THREAD_WEAR_STANDARD)</td>
+                <td>>=@Html.EditorFor(Model => Model.THREAD_WEAR_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.THREAD_WEAR_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.THREAD_WEAR_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.THREAD_WEAR_UPPERBOUND2)</td>
+
+            </tr>
+            <tr>
+                <td>同轴轮径差</td>
+                <td>
+                    @Html.TextBoxFor(Model => Model.COAXIAL_DIAM_DIFF_STANDARD, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.COAXIAL_DIAM_DIFF_STANDARD)*@
+                </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.COXIAL_DIAM_DIFF_LOWERBOUND1, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.COXIAL_DIAM_DIFF_LOWERBOUND1)*@
+                </td>
+                <td>
+                    <= @Html.TextBoxFor(Model => Model.COXIAL_DIAM_DIFF_UPPERBOUND1, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.COXIAL_DIAM_DIFF_UPPERBOUND1)*@
+                </td>
+                <td>
+                    >= @Html.TextBoxFor(Model => Model.COXIAL_DIAM_DIFF_LOWERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.COXIAL_DIAM_DIFF_LOWERBOUND2)*@
+                </td>
+                <td>
+                    <= @Html.TextBoxFor(Model => Model.COXIAL_DIAM_DIFF_UPPERBOUND2, new { @readonly = "readonly" })
+                    @*@Html.EditorFor(Model => Model.COXIAL_DIAM_DIFF_UPPERBOUND2)*@
+                </td>
+
+            </tr>
+            <tr>
+                <td>擦伤深度</td>
+                <td>@Html.EditorFor(Model => Model.SCRAPE_DEPTH_STANDARD)</td>
+                <td>>=@Html.EditorFor(Model => Model.BRUISE_DEPTH_LOWERBOUND1)</td>
+                <td><=@Html.EditorFor(Model => Model.BRUISE_DEPTH_UPPERBOUND1)</td>
+                <td>>=@Html.EditorFor(Model => Model.BRUISE_DEPTH_LOWERBOUND2)</td>
+                <td><=@Html.EditorFor(Model => Model.BRUISE_DEPTH_UPPERBOUND2)</td>
+
+            </tr>
+        </table>
+
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" name="submit" value="保存" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

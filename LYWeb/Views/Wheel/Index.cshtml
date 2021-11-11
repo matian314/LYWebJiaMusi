@@ -1,0 +1,83 @@
+﻿@model IEnumerable<LYWeb.Models.WHEEL>
+
+@{
+    ViewBag.Title = "车轮详情";
+}
+
+<h2 style="text-align:center">@ViewBag.VehicleName - 车轮详情</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.VEHICLE.NAME)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.NAME)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.POSITION)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DIAMETER)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FLANGE_THICKNESS)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FLANGE_HEIGHT)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.RIM_THICKNESS)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.QR)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TREAD_WEAR)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.WHEELSET_DISTANCE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.COAXIAL_DIAMETER_DIFFERENCE)
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.BOGIE_DIAMETER_DIFFERENCE)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.VEHICLE_DIAMETER_DIFFERENCE)
+        </th>*@
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        @Html.DisplayForData(item.VEHICLE.NAME)
+
+        @Html.DisplayForData(item.NAME)
+
+        @Html.DisplayForData(item.POSITION)
+
+        @Html.DisplayForData(item.DIAMETER)
+
+        @Html.DisplayForData(item.FLANGE_THICKNESS)
+
+        @Html.DisplayForData(item.FLANGE_HEIGHT)
+
+        @Html.DisplayForData(item.RIM_THICKNESS)
+
+        @Html.DisplayForData(item.QR)
+
+        @Html.DisplayForData(item.TREAD_WEAR)
+
+        @Html.DisplayForData(item.WHEELSET_DISTANCE)
+
+        @Html.DisplayForData(item.COAXIAL_DIAMETER_DIFFERENCE)
+
+        @*@Html.DisplayForData(item.BOGIE_DIAMETER_DIFFERENCE)
+
+        @Html.DisplayForData(item.VEHICLE_DIAMETER_DIFFERENCE)*@
+    </tr>
+}
+
+</table>

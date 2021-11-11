@@ -1,0 +1,81 @@
+﻿@model LYWeb.Models.RECHECKS
+
+@{
+    FAULT fault = Model.FAULT;
+    WHEEL wheel = fault.WHEEL;
+    ViewBag.Title = wheel.NAME + " " + fault.ITEM + "复核";
+}
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<form method="post">
+    <h5>@Model.TEAM_NAME 检修班:</h5>
+
+    <h5>@($"{wheel.VEHICLE.TRAIN.DETECTION_TIME.ToString("yyyy年M月d日")}轮对故障动态监测系统探伤模块/擦伤模块/尺寸模块监测到{wheel.VEHICLE.TRAIN.NAME}列车轮对数据超限，请进行人工复核，具体内容如下表:")</h5>
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>车辆号</th>
+            <th>超限项目</th>
+            <th>轮位</th>
+            <th>检测值</th>
+            <th colspan="9" style="text-align:center">复核值</th>
+            <th>复核人</th>
+            <th>复核日期</th>
+            <th>误差分析</th>
+            <th>处理情况</th>
+            <th>处理人</th>
+        </tr>
+        <tr>
+            <td rowspan="2" style="text-align:center">@wheel.VEHICLE.NAME</td>
+            <td rowspan="2" style="text-align:center">@fault.ITEM</td>
+            <td rowspan="2" style="text-align:center">@wheel.POSITION</td>
+            <td rowspan="2" style="text-align:center">@fault.VALUE</td>
+            <td rowspan="1" colspan="1">1位</td>
+            <td rowspan="1" colspan="1">2位</td>
+            <td rowspan="1" colspan="1">3位</td>
+            <td rowspan="1" colspan="1">4位</td>
+            <td rowspan="1" colspan="1">5位</td>
+            <td rowspan="1" colspan="1">6位</td>
+            <td rowspan="1" colspan="1">7位</td>
+            <td rowspan="1" colspan="1">8位</td>
+            <td rowspan="1" colspan="1">差值</td>
+            <td rowspan="2" style="text-align:center">@(Model.RECHECK_PERSON)</td>
+            <td rowspan="2" style="text-align:center">@(Model.RECHECKED_TIME?.ToString("yyyy年M月d日"))</td>
+            <td rowspan="2" style="text-align:center">@(Model.ERROR_ANALYSIS)</td>
+            <td rowspan="2" style="text-align:center">@(Model.CONCLUSION)</td>
+            <td rowspan="2" style="text-align:center">@(Model.RECHECK_HANDLER)</td>
+        </tr>
+        <tr>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE1)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE2)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE3)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE4)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE5)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE6)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE7)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.VALUE8)</td>
+            <td rowspan="1" colspan="1" style="font-size:9px">@(Model.DIFF_VALUE)</td>
+        </tr>
+    </table>
+    <table class="table">
+        <tr>
+            <td>检修工长</td>
+            <td>@Model.FOREMAN</td>
+            <td>质检员</td>
+            <td>@Model.QUALITY_INSPECTOR</td>
+            <td>调度员</td>
+            <td>@Model.DISPATCHER</td>
+        </tr>
+    </table>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            @Html.ActionLink("返回", "Train", "Fault", new { id = wheel.VEHICLE.TRAIN_ID }, null)
+        </div>
+    </div>
+</form>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#FaultIndex").addClass('active');
+        });
+    </script>
+}

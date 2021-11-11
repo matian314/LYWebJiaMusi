@@ -1,0 +1,73 @@
+﻿@model TudsWeb.Models.RECHECKS
+
+@{
+    ViewBag.Title = "复核结果";
+}
+
+<h2>Index</h2>
+
+<div>
+    <h4>复核结果</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.HANDLER)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.HANDLER)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SUGGESTION)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SUGGESTION)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CONCLUSION)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CONCLUSION)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TIME)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TIME)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.VALUE)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.VALUE)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.RECHECK_PERSON)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.RECHECK_PERSON)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.STATE)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.STATE)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("返回", "Index", "Fault")
+</p>

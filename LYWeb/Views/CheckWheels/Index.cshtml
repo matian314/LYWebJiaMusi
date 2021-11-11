@@ -1,0 +1,81 @@
+﻿@model IEnumerable<LYWeb.Models.CHECK_AXLE>
+@{
+    CHECK_AXLE axles = (CHECK_AXLE)ViewBag.axles;
+    ViewBag.Title = "样板轮校验数据";
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<div>
+    
+        <div class="row">
+
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th rowspan="2">测试时间</th>
+                    <th rowspan="2">左/右轮</th>
+                    <th rowspan="2">探伤</th>
+                    <th colspan="2">擦伤</th>
+                    <th colspan="9">外形尺寸</th>
+                </tr>
+                <tr>
+                    @*<th>车号</th>*@
+                    @*<th>轮位</th>*@
+                    @*<th>探伤缺陷</th>*@
+                    <th>擦伤长度</th>
+                    <th>擦伤深度</th>
+                    <th>踏面磨耗</th>
+                    <th>轮缘厚度</th>
+                    <th>轮缘高度</th>
+                    <th>轮辋厚度</th>
+                    <th>QR值</th>
+                    <th>车轮直径</th>
+                    <th>内侧距</th>
+                    <th>不圆度</th>
+                    <th>同轴轮径差</th>
+
+
+                </tr>
+                @foreach (var axle in Model)
+                {
+                    for (int i = 0; i < axle.CHECK_WHEEL.Count; i++)
+                    {
+                        var wheel = axle.CHECK_WHEEL.OrderByDescending(t => t.NAME).ToList()[i];
+                        <tr>
+                            @if (i % axle.CHECK_WHEEL.Count == 0)
+                            {
+                                <td rowspan=@(axle.CHECK_WHEEL.Count) align="center" valign="middle">@(axle.PASS_TIME)</td>
+                            }
+
+                            <td>
+                                @wheel.NAME
+
+                            </td>
+                            <td><a href="@Url.Action("Inspection", "CheckWheels" ,new { id = wheel.ID })" target="_blank">探伤</a></td>
+                            <td>@wheel.MAX_BRUISE_LENGTH</td>
+                            <td>@wheel.MAX_BRUISE_DEPTH</td>
+                            <td>@wheel.TREAD_WEAR</td>
+                            <td>@wheel.FLANGE_THICKNESS</td>
+                            <td>@wheel.FLANGE_HEIGHT</td>
+                            <td>@wheel.RIM_THICKNESS</td>
+                            <td>@wheel.QR</td>
+                            <td>@wheel.DIAMETER</td>
+                            <td>@wheel.WHEELSET_DISTANCE</td>
+                            <td>@wheel.ROUND</td>
+
+                            @if (i % 2 == 0)
+                            {
+                                <td rowspan="2">
+                                    @wheel.COAXIAL_DIAMETER_DIFFERENCE
+                                </td>
+                            }
+
+
+                        </tr>
+                    }
+                }
+                </table>
+        </div>
+    
+
+</div>
+

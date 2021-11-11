@@ -1,0 +1,109 @@
+﻿@model IEnumerable<LYWeb.Models.FAULT>
+@using LYWeb.Helpers;
+@{
+    TRAIN train = ViewBag.Train;
+    ViewBag.Title = train.NAME + " - 超限及处理信息";
+    //序号
+    int index = 1;
+}
+
+<h2 style="text-align:center">@ViewBag.Title</h2>
+<script type="text/javascript">
+    function printData() {
+        var printData = document.getElementById("forPrint").innerHTML; // 只打印 forPrint 这个div中的内容。
+        var syfPrint = document.frames[0];
+        syfPrint.document.body.innerHTML = printData;
+        syfPrint.document.execCommand("Print");
+    }
+</script>
+<iframe src="" width="0" height="0" frameborder="0"></iframe>
+<table class="table">
+    <tr>
+        <td>@Html.ActionLink("几何尺寸", "Dimension", "Vehicle", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("擦伤", "Scrape", "Vehicle", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("探伤", "Inspection", "Vehicle", new { id = train.ID }, null)</td>
+    </tr>
+    <tr>
+        @*给王力男*@
+        <td>@Html.ActionLink("准确性分析", "DimensionAnalyse", "Excel", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("导出数据", "FaultTrain", "Excel", new { id = train.ID }, null)</td>
+        <td>@Html.ActionLink("打印", "FaultTrainPDF", "Excel", new { id = train.ID }, new { target = "_blank" })</td>
+    </tr>
+</table>
+<div id="forPrint">
+    <table class="table">
+        <tr>
+            <td>车号: @(train?.NAME)</td>
+            <td>探测点:@(train?.SITES.NAME)</td>
+            <td>配属段: @(train?.DEPOT)</td>
+            <td>检测时间:@(train?.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+        </tr>
+    </table>
+    <form method="post">
+        <table class="table table-bordered table-striped">
+            <tr>
+                <th>序号</th>
+                @*<th>探测时间</th>*@
+                <th>车号</th>
+                <th>轮位</th>
+                <th>检测项</th>
+                <th>检测值(mm)</th>
+                <th>超限级别</th>
+                <th>处理意见</th>
+                <th>处理人</th>
+                <th>意见提交</th>
+                @*<th>复核值</th>
+        <th>复核人</th>
+        <th>处理结论</th>*@
+                <th>缺陷图片</th>
+                <th>处理状态</th>
+            </tr>
+            @foreach (var item in Model)
+            {
+            <tr>
+                @{ RECHECKS recheck = item.RECHECKS.FirstOrDefault();}
+                <td>@(index++)</td>
+                @*<td>@item.WHEEL.VEHICLE.TRAIN.DETECTION_TIME.ToString("M-d H:mm")</td>*@
+                <td>@Html.DisplayFor(modelItem => item.WHEEL.VEHICLE.COACH_NUMBER)</td>
+                <td>@Html.DisplayFor(modelItem => item.WHEEL.POSITION)</td>
+                <td>@Html.DisplayFor(modelItem => item.ITEM)</td>
+                <td>@Html.DisplayFor(modelItem => item.VALUE)</td>
+                <td>@Html.DisplayAlarmLevel(item.ALARM_LEVEL)</td>
+                @if (recheck != null)
+                {
+                    <td>@Html.DisplayFor(modelItem => recheck.SUGGESTION)</td>
+                    <td>@Html.DisplayFor(modelItem => recheck.HANDLER)</td>
+                    <td>——</td>
+
+                    @*<td>@Html.DisplayFor(modelItem => recheck.VALUE)</td>
+            <td>@Html.DisplayFor(modelItem => recheck.RECHECK_PERSON)</td>
+            <td>@Html.DisplayFor(modelItem => recheck.CONCLUSION)</td>*@
+                    <td>@Html.ActionLink("上传", "UpLoad", "Fault", new { id = item.ID }, null) &nbsp;|&nbsp;@Html.ActionLink("查看", "UpLoadShow", "Fault", new { id = item.ID }, null)</td>
+                    <td>@Html.DisplayRecheckStateLink(item)</td>
+                }
+                else
+                {
+                    <td>@Html.DropDownList($"SUGGESTION{item.ID}", SelectListFactory.CreateSuggesionSelectList(), "")</td>
+                    <td>@Html.TextBox($"HANDLER{item.ID}")</td>
+                    <td><button type="submit" class="btn btn-default" name="submit" value="@item.ID">提交</button></td>
+                    @*<td></td>
+            <td></td>
+            <td></td>*@
+                    <td>@Html.ActionLink("上传", "UpLoad", "Fault", new { id = item.ID }, null) &nbsp;|&nbsp;@Html.ActionLink("查看", "UpLoadShow", "Fault", new { id = item.ID }, null)</td>
+                    <td>@Html.DisplayRecheckStateLink(item)</td>
+                }
+
+            </tr>
+            }
+
+        </table>
+    </form>
+</div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#FaultIndex").addClass('active');
+        });
+    </script>
+}

@@ -1,0 +1,71 @@
+﻿@model LYWeb.Models.UNIT_NUMBER_DICT
+
+@{
+    ViewBag.Title = "删除车号";
+}
+
+<h2 style="text-align:center">删除车号</h2>
+
+<h2 style="text-align:center">确认删除？</h2>
+<div>
+    <dl class="dl-horizontal col-lg-offset-4" >
+        <dt>
+            @Html.DisplayNameFor(model => model.UNIT_NUMBER)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UNIT_NUMBER)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.DEPOT_NAME)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.DEPOT_NAME)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CHECK_NAME)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CHECK_NAME)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LAST_TIME)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LAST_TIME)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CAR_TYPE1.TYPE)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CAR_TYPE1.TYPE)
+        </dd>
+
+        <dt>
+            @*@Html.DisplayNameFor(model => model.TREAD_DICT.NAME)*@
+            @Html.Label("踏面类型")
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TREAD_DICT.NAME)
+        </dd>
+
+    </dl>
+
+    @using (Html.BeginForm()) {
+        @Html.AntiForgeryToken()
+
+        <div class="form-actions no-color col-lg-offset-5" >
+            <input type="submit" value="确认删除" class="btn btn-default" /> |
+            @Html.ActionLink("返回", "Index")
+        </div>
+    }
+</div>

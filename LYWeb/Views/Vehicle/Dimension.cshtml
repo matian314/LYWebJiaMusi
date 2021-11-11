@@ -1,0 +1,160 @@
+﻿@model IEnumerable<LYWeb.Models.VEHICLE>
+@{
+    TRAIN train = (TRAIN)ViewBag.Train;
+    ViewBag.Title = train.NAME + " - 列车几何尺寸";
+}
+<h2 style="text-align:center">@train.NAME - 几何尺寸</h2>
+<h5 style="text-align:right">单位:mm</h5>
+<script type="text/javascript">
+    function printData() {
+        var printData = document.getElementById("forPrint").innerHTML; // 只打印 forPrint 这个div中的内容。  
+        var syfPrint = document.frames[0];
+        syfPrint.document.body.innerHTML = printData;
+        syfPrint.document.execCommand("Print");
+    }
+</script>
+<iframe src="" width="0" height="0" frameborder="0"></iframe>
+
+    <table class="table">
+        <tr>
+            <td>@Html.ActionLink("超限数据", "Train", "Fault", new { id = train.ID }, null)</td>
+            <td>@Html.ActionLink("测量数据", "Data", new { id = train?.ID }, null)</td>
+            <td>@Html.ActionLink("探伤", "Inspection", new { id = train.ID }, null)</td>
+            <td>@Html.ActionLink("擦伤", "Scrape", new { id = train.ID }, null)</td>
+        </tr>
+        <tr>
+            @*给王力男*@
+            <td>@Html.ActionLink("准确性分析", "DimensionAnalyse", "Excel", new { id = train.ID }, null)</td>
+            <td>@Html.ActionLink("导出数据", "DimensionInfo", "Excel", new { id = train.ID }, null)</td>
+            <td>@Html.ActionLink("打印", "DimensionInfoPDF", "Excel", new { id = train.ID }, new { target = "_blank" })@*<input type="button" onclick="printData()" value="打印" />*@</td>
+        </tr>
+    </table>
+    <div id="forPrint">
+        <table class="table">
+            <tr>
+                <td>车号: @(train?.NAME)</td>
+                <td>探测站:@(train?.SITES?.NAME)</td>
+                <td>配属段: @(train?.DEPOT)</td>
+                <td>检测时间:@(train?.DETECTION_TIME.ToString("yyyy-MM-dd HH:mm:ss"))</td>
+            </tr>
+        </table>
+
+        @foreach (var vehicle in Model)
+        {
+
+            <table class="table table-bordered table-striped">
+                @*<tr>
+                    <th rowspan="2">车号</th>
+                    <th rowspan="2">轴位</th>
+                    <th rowspan="2">轮位</th>
+
+
+                    <th colspan="9">外形尺寸</th>
+                    <td>
+                        端位：@Html.DisplayEndPosition(train.END_POSITION) 在前
+                        @Html.ActionLink("(人工修改)", "UnitRecheck", "Vehicle", new { id = train.ID }, new { target = "_blank" })
+                    </td>
+
+                </tr>*@
+                <tr>
+                    <th>车号</th>
+                    <th>轴位</th>
+                    <th>轮位</th>
+                    <th>踏面磨耗</th>
+                    <th>轮缘厚度</th>
+                    <th>轮缘高度</th>
+                    <th>轮辋厚度</th>
+                    <th>QR值</th>
+                    <th>车轮直径</th>
+                    <th>内侧距</th>
+                    <th>不圆度</th>
+                    <th>同轴轮径差</th>
+
+                </tr>
+                @for (int i = 0; i < vehicle.WHEEL.Count; i++)
+                {
+                    WHEEL wheel = vehicle.WHEEL.OrderBy(w => w.AXLE_POSITION).ThenByDescending(w => w.POSITION).ToList()[i];
+                    <tr>
+                        @if (i % vehicle.WHEEL.Count == 0)
+                        {
+                            <td rowspan=@(vehicle.WHEEL.Count) align="center" valign="middle">@(vehicle.NAME)</td>
+                        }
+                        @if (i % 2 == 0)
+                        {
+                            <td rowspan="2">
+                                @wheel.AXLE_POSITION
+                            </td>
+                        }
+                        <td>
+                            @Html.ActionLink(wheel.POSITION, "Wheel", "Track", new { CarNumber = wheel.VEHICLE.NAME, WheelPosition = wheel.POSITION }, new { style = "color:black" })
+                            @Html.ActionLink("（图片）", "Photos", "Wheel", new { id = wheel.ID }, new { target = "_blank" })
+                        </td>
+
+                        <td>@Html.DisplayValueLink(wheel, "TREAD_WEAR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "FLANGE_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "FLANGE_HEIGHT", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "RIM_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "QR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "DIAMETER", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "WHEELSET_DISTANCE", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "ROUND", "Scrape", "Wheel", new { id = wheel.ID })</td>
+                        @if (i % 2 == 0)
+                        {
+                            <td rowspan="2">
+                                @Html.DisplayValueLink(wheel, "COAXIAL_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = wheel.ID })
+                            </td>
+                        }
+                    </tr>
+                }
+            </table>
+
+            @*<table class="table table-bordered table-striped">
+                <tr>
+                    <th>车号</th>
+                    <th>轮位</th>
+                    <th>踏面磨耗</th>
+                    <th>轮缘厚度</th>
+                    <th>轮缘高度</th>
+                    <th>轮辋厚度</th>
+                    <th>QR值</th>
+                    <th>车轮直径</th>
+                    <th>内侧距</th>
+                    <th>同轴轮径差</th>
+                </tr>
+                @for (int i = 0; i < vehicle.WHEEL.Count; i++)
+                {
+                    WHEEL wheel = vehicle.WHEEL.OrderBy(w => w.POSITION).ToList()[i];
+                    <tr>
+                        @if (i % vehicle.WHEEL.Count == 0)
+                        {
+                            <td rowspan=@(vehicle.WHEEL.Count) align="center" valign="middle">@(vehicle.NAME)</td>
+                        }
+
+                        <td>@(wheel.POSITION)</td>
+                        <td>@Html.DisplayValueLink(wheel, "TREAD_WEAR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "FLANGE_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "FLANGE_HEIGHT", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "RIM_THICKNESS", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "QR", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "DIAMETER", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        <td>@Html.DisplayValueLink(wheel, "WHEELSET_DISTANCE", "Dimension", "Wheel", new { id = wheel.ID })</td>
+                        @if (i % 2 == 0)
+                        {
+                            <td rowspan="2">
+                                @Html.DisplayValueLink(wheel, "COAXIAL_DIAMETER_DIFFERENCE", "Dimension", "Wheel", new { id = wheel.ID })
+                            </td>
+                        }
+                    </tr>
+                }
+            </table>*@
+        }
+
+    </div>
+@section Scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#VehicleIndex").addClass('active');
+        });
+    </script>
+}

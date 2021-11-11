@@ -1,0 +1,36 @@
+﻿@model IEnumerable<LYWeb.Models.WEBUSER>
+@using LYWeb.Helpers
+@{
+    ViewBag.Title = "用户管理";
+    //序号
+    int index = 1;
+}
+<h2 style="text-align:center">@ViewBag.Title</h2>
+@using (Html.BeginForm(FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <table class="table table-bordered table-striped">
+        <tr>
+            <th>序号</th>
+            <th>用户姓名</th>
+            <th>登录名</th>
+            <th>角色</th>
+            <th>所属单位</th>
+            <th>权限修改</th>
+
+        </tr>
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>@(index++)</td>
+            <td>@Html.DisplayFor(modelItem => item.REAL_NAME)</td>
+            <td>@Html.DisplayFor(modelItem => item.NAME)</td>
+            <td>@Html.DropDownList($"ROLE{item.ID}", SelectListFactory.CreateRoleSelectList(item))</td>
+            <td>@Html.DisplayFor(modelItem => item.DEPOT_NAME)</td>
+            <td>@Html.DropDownList($"ENABLED{item.ID}", SelectListFactory.CreateUserEnabledSelectList(item))</td>
+            <td><button type="submit" class="btn btn-default" name="submit" value="@item.ID">提交</button></td>
+        </tr>
+        }
+
+    </table>
+}

@@ -1,0 +1,95 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <script src="~/Scripts/App/ie-emulation-modes-warning.js"></script>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @*<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/site.css" rel="stylesheet" />
+    <link href="~/Content/dashboard.css" rel="stylesheet" />
+    <link href="~/Content/ie10-viewport-bug-workaround.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css.map" rel="stylesheet" />
+    <link href="~/Content/bootstrap.css.map" rel="stylesheet" />
+    <script src="~/Scripts/modernizr-2.8.3.js"></script>*@
+
+    <script type="text/javascript" src="~/Scripts/My97DatePicker/WdatePicker.js"></script>
+</head>
+<body>
+    @*<style>
+            body {
+                background-color: darkblue;
+
+            }
+        </style>*@
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="@Url.Action("Index", "Monitor")">HTK-TNWDS-01铁路车轮故障在线检测系统</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>@Html.Partial("_LoginPartial")</li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-1 col-md-1 col-lg-1 sidebar">
+                <ul class="nav nav-sidebar">
+                    <li style="text-align:left">数据监控</li>
+                    <li class="nav-divider"></li>
+                    <li id="MonitorIndex" style="text-align:center"><a href="@Url.Action("Index","Monitor")">过车监控</a></li>
+                </ul>
+                <ul class="nav nav-sidebar">
+                    <li style="text-align:left">数据查询</li>
+                    <li class="nav-divider" style="text-align:center"></li>
+                    <li id="VehicleIndex" style="text-align:center"><a href="@Url.Action("Index", "Vehicle")">过车查询</a></li>
+                    <li id="FaultIndex" style="text-align:center"><a href="@Url.Action("Index","Fault")">超限查询</a></li>
+                    <li id="TrackTrain" style="text-align:center"><a href="@Url.Action("Train","Track")">历史追踪</a></li>
+                    <li id="TrackWheel" style="text-align:center"><a href="@Url.Action("Wheel","Track")">车轮追踪</a></li>
+                </ul>
+                <ul class="nav nav-sidebar">
+                    <li style="text-align:left">数据统计</li>
+                    <li class="nav-divider"></li>
+                    <li id="IndexStatistics" style="text-align:center"><a href="@Url.Action("Index", "Statistics")">过车统计</a></li>
+                    <li id="RechesksStatistics" style="text-align:center"><a href="@Url.Action("Rechecks", "Statistics")">复核统计</a></li>
+                    
+                    @*<li id="RechesksStatistics" style="text-align:center"><a href="@Url.Action("DailyReport", "LocoReport")">日报表</a></li>*@
+                </ul>
+                @if (!string.IsNullOrEmpty(Session["role"]?.ToString()) && Session["role"].ToString() == "管理员")
+                {
+                <ul class="nav nav-sidebar">
+                    <li id="CheckWheels" style="text-align:center"><a href="@Url.Action("Index", "CheckWheels")">样板轮校验</a></li>
+                    <li id="UserEidt" style="text-align:center"><a href="@Url.Action("UserEdit", "User")">用户管理</a></li>
+                    <li id="UnitIndex" style="text-align:center"><a href="@Url.Action("Index","Unit")">车号管理</a></li>
+                    <li id="UnitCarType" style="text-align:center"><a href="@Url.Action("CarType","Unit")">门限管理</a></li>
+                </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="container body-content col-sm-offset-1 col-md-offset-1 col-lg-offset-1 col-sm-11 col-md-11 col-lg-11">
+        @RenderBody()
+        @*<footer>
+                <p>&copy; @DateTime.Now.Year - TUDS车辆轮对在线探伤系统</p>
+            </footer>*@
+    </div>
+
+    @*@Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")*@ 
+    <script src="~/Scripts/jquery-3.3.1.js"></script>
+
+    <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/App/respond.js"></script>
+    @RenderSection("scripts", required: false)
+
+</body>
+</html>

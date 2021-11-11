@@ -1,0 +1,113 @@
+﻿@{
+    WHEEL wheel = ViewBag.Wheel;
+    ViewBag.Title = wheel.NAME + " - 车轮几何尺寸";
+
+}
+
+
+<link rel="icon" href="~/Content/themes/base/images/favicon.ico">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<h2 style="text-align:center">@wheel.NAME 车轮几何尺寸</h2>
+@if (wheel != null)
+{
+    //设备状态折线图
+    @Html.ActionLink("尺寸报告", "WheelDimension", "LocoReport", new { id = wheel.ID }, null)
+    <table class="table">
+        <tr>
+            <td>轮号</td>
+            <td>@Html.DisplayName(wheel.NAME)</td>
+            <td>探测站</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.SITES.NAME)</td>
+            <td>车号</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.UNIT_NUMBER)</td>
+        </tr>
+        <tr>
+            <td>车型</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.TRAIN.VEHICLE.FirstOrDefault()?.CAR_TYPE1?.TYPE ?? "暂无车型")</td>
+            <td>车号</td>
+            <td>@Html.DisplayName(wheel.VEHICLE.NAME)</td>
+            <td>轴号</td>
+            <td>@Html.DisplayName(wheel.AXLE_POSITION.ToString())</td>
+        </tr>
+        <tr>
+            <td>轮位</td>
+            <td>@Html.DisplayName(wheel.POSITION)</td>
+            <td>车轮直径</td>
+            <td>@wheel.DIAMETER</td>
+            <td>踏面磨耗</td>
+            <td>@wheel.TREAD_WEAR</td>
+        </tr>
+        <tr>
+            <td>轮缘高度</td>
+            <td>@wheel.FLANGE_HEIGHT</td>
+            <td>轮缘厚度</td>
+            <td>@wheel.FLANGE_THICKNESS</td>
+            <td>轮辋厚度</td>
+            <td>@wheel.RIM_THICKNESS</td>
+        </tr>
+        <tr>
+            <td>QR值</td>
+            <td>@wheel.QR</td>
+            <td>轮对内侧距</td>
+            <td>@wheel.WHEELSET_DISTANCE</td>
+            <td>同轴轮径差</td>
+            <td>@wheel.COAXIAL_DIAMETER_DIFFERENCE</td>
+        </tr>
+    </table>
+}
+@if (!string.IsNullOrWhiteSpace(ViewBag.Data))
+{
+    @*<script src="https://code.highcharts.com.cn/jquery/jquery-1.8.3.min.js"></script>
+        <script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>*@
+    <script src="~/Scripts/highcharts/highcharts.js"></script>
+    <script src="~/Scripts/highcharts/modules/exporting.js"></script>
+    <script src="~/Scripts/highcharts/plugins/highcharts-zh_CN.js"></script>
+    <div id="container" style="max-width:800px;height:400px"></div>
+
+    <script>
+    var data = @ViewBag.Data;
+    var wheelName = '@wheel.NAME';
+    var title = wheelName + '车轮几何尺寸';
+    var chart = Highcharts.chart('container', {
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: title
+        },
+        xAxis: {
+            //type: 'datetime',
+            title: {
+                text: null
+            }
+        },
+        colors: ['#0000FF'],
+        yAxis: {
+            title: {
+                text: null
+            },
+            //min: 0
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:.2f}mm, {point.y:.2f}mm'
+        },
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: false
+                }
+            }
+        },
+        series: [{
+            name: wheelName,
+            data: data
+        }]
+    });
+
+    </script>
+}
+else
+{
+    <h3>暂无数据</h3>
+}

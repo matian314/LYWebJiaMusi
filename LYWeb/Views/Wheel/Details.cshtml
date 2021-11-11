@@ -1,0 +1,88 @@
+﻿@model LYWeb.Models.WHEEL
+@{
+    ViewBag.Title = "车轮详情";
+}
+
+<h2 style="text-align:center">车轮详情</h2>
+
+<div>
+    <h4 style="text-align:center">@ViewBag.WheelName 车轮详情</h4>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <td>车辆详细信息</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.NAME)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.TRAIN.NAME)</td>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.CAR_TYPE1.TYPE)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.CAR_TYPE1.TYPE)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.DETECTION_TIME)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.TRAIN.DETECTION_TIME)</td>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.END_POSITION)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.TRAIN.END_POSITION)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.MAX_SPEED) (km/h)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.TRAIN.MAX_SPEED)</td>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.TRAIN.MIN_SPEED) (km/h)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.TRAIN.MIN_SPEED)</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="table">
+        <thead>
+            <tr>
+                <td>车轮详细信息</td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE.NAME)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE.NAME)</td>
+                <td>@Html.DisplayNameFor(model => model.POSITION)</td>
+                <td>@Html.DisplayFor(model => model.POSITION)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.INSPECTION_ALARMLEVEL)</td>
+                <td>@Html.DisplayAlarmLevel(Model.INSPECTION_ALARMLEVEL)</td>
+                <td>@Html.DisplayNameFor(model => model.SCRAPE_ALARMLEVEL)</td>
+                <td>@Html.DisplayAlarmLevel(Model.SCRAPE_ALARMLEVEL)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.DIAMETER) (mm)</td>
+                <td>@Html.DisplayFor(model => model.DIAMETER)</td>
+                <td>@Html.DisplayNameFor(model => model.RIM_THICKNESS) (mm)</td>
+                <td>@Html.DisplayFor(model => model.RIM_THICKNESS)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.FLANGE_HEIGHT) (mm)</td>
+                <td>@Html.DisplayFor(model => model.FLANGE_HEIGHT)</td>
+                <td>@Html.DisplayNameFor(model => model.FLANGE_THICKNESS) (mm)</td>
+                <td>@Html.DisplayFor(model => model.FLANGE_THICKNESS) </td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.TREAD_WEAR) (mm)</td>
+                <td>@Html.DisplayFor(model => model.TREAD_WEAR)</td>
+                <td>@Html.DisplayNameFor(model => model.WHEELSET_DISTANCE) (mm)</td>
+                <td>@Html.DisplayFor(model => model.WHEELSET_DISTANCE)</td>
+            </tr>
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.COAXIAL_DIAMETER_DIFFERENCE) (mm)</td>
+                <td>@Html.DisplayFor(model => model.COAXIAL_DIAMETER_DIFFERENCE)</td>
+                @*<td>@Html.DisplayNameFor(model => model.BOGIE_DIAMETER_DIFFERENCE) (mm)</td>
+                <td>@Html.DisplayFor(model => model.BOGIE_DIAMETER_DIFFERENCE)</td>*@
+            </tr>
+            @*<tr>
+                <td>@Html.DisplayNameFor(model => model.VEHICLE_DIAMETER_DIFFERENCE) (mm)</td>
+                <td>@Html.DisplayFor(model => model.VEHICLE_DIAMETER_DIFFERENCE)</td>
+            </tr>*@
+        </tbody>
+    </table>
+    <h4 style="text-align:center">@Html.ActionLink("查看图片", "Photos", "Wheel", new { id = Model.ID }, new { target = "_blank" })</h4>
+</div>
